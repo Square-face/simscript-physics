@@ -1,14 +1,23 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+use glam::{DMat3, DQuat, DVec3};
+
+pub struct Mass {
+    pub mass: f64,
+    pub inertia: DMat3,
+    pub inv_inertia: DMat3,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub struct Position {
+    pub translation: DVec3,
+    pub rotation: DQuat,
+}
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub struct Momentum {
+    pub linear: DVec3,
+    pub rotation: DVec3,
+}
+
+pub struct State {
+    pub mass: Mass,
+    pub position: Position,
+    pub momentum: Momentum,
 }
