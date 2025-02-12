@@ -1,7 +1,7 @@
-use glam::DMat3;
+use glam::DMat3 as Mat3;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Mass(pub f64);
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Innertia(pub DMat3);
+pub struct Innertia(pub Mat3);

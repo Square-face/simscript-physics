@@ -1,9 +1,7 @@
-use glam::DVec3;
+use glam::DVec3 as Vec3;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct LinMom(pub DVec3);
+pub struct LinMom(pub Vec3);
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct AngMom(pub DVec3);
-
-
+pub struct AngMom(pub Vec3);
