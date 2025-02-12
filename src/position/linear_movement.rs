@@ -1,8 +1,9 @@
-
-use super::LinMove;
 use glam::DVec3 as Vec3;
 use overload::overload;
 use std::ops;
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct LinMove(pub Vec3);
 
 impl LinMove {
     pub const ZERO: Self = Self::new(Vec3::ZERO);

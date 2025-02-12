@@ -1,17 +1,16 @@
-use glam::{DQuat as Quat, DVec3 as Vec3};
+use angular_movement::AngMove;
+use linear_movement::LinMove;
 use overload::overload;
 use std::ops;
-
-use crate::Position;
 
 pub mod angular_movement;
 pub mod linear_movement;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct LinMove(pub Vec3);
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct AngMove(pub Quat);
+pub struct Position {
+    pub translation: LinMove,
+    pub rotation: AngMove,
+}
 
 impl Position {
     pub const fn new(lin: LinMove, ang: AngMove) -> Self {

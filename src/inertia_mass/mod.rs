@@ -1,15 +1,16 @@
-use glam::DMat3 as Mat3;
-
-use crate::InnertiaMass;
+use intertia::Inertia;
+use mass::Mass;
 
 pub mod intertia;
 pub mod mass;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Mass(pub f64);
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Inertia(pub Mat3);
+pub struct InnertiaMass {
+    pub mass: Mass,
+    pub inertia: Inertia,
+    pub inv_inertia: Inertia,
+}
 
 impl InnertiaMass {
     pub fn new(mass: Mass, inertia: Inertia) -> Self {

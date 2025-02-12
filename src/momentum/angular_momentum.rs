@@ -1,8 +1,10 @@
 
-use super::AngMom;
 use glam::DVec3 as Vec3;
 use overload::overload;
 use std::ops;
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct AngMom(pub Vec3);
 
 impl AngMom {
     pub const ZERO: Self = Self::new(Vec3::ZERO);

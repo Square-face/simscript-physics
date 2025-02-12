@@ -1,21 +1,17 @@
-use glam::DVec3 as Vec3;
 use overload::overload;
 use std::ops;
 
-use crate::Momentum;
+use angular_momentum::AngMom;
+use linear_momentum::LinMom;
 
 pub mod angular_momentum;
 pub mod linear_momentum;
 
-/// Represents the linear momentum an object has in all cardinal directions
-///
-/// While no unit is used explicitly, it is recomended to use this struct as if it is represented
-/// in Ns (NewtonSeconds)
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct LinMom(pub Vec3);
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct AngMom(pub Vec3);
+pub struct Momentum {
+    pub linear: LinMom,
+    pub rotation: AngMom,
+}
 
 impl Momentum {
     pub const fn new(lin: LinMom, ang: AngMom) -> Self {

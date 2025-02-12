@@ -5,7 +5,8 @@ use glam::DQuat as Quat;
 use overload::overload;
 use std::ops;
 
-use super::AngMove;
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct AngMove(pub Quat);
 
 impl AngMove {
     pub const ZERO: Self = Self::new(Quat::IDENTITY);

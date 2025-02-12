@@ -1,7 +1,13 @@
-use super::LinMom;
 use glam::DVec3 as Vec3;
 use overload::overload;
 use std::ops;
+
+/// Represents the linear momentum an object has in all cardinal directions
+///
+/// While no unit is used explicitly, it is recomended to use this struct as if it is represented
+/// in Ns (NewtonSeconds)
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct LinMom(pub Vec3);
 
 impl LinMom {
     pub const ZERO: Self = Self::new(Vec3::ZERO);
