@@ -1,6 +1,7 @@
 use glam::DVec3 as Vec3;
 
 pub mod linear_momentum;
+pub mod angular_momentum;
 
 /// Represents the linear momentum an object has in all cardinal directions
 ///
