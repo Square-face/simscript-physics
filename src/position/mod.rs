@@ -1,10 +1,10 @@
-use angular_movement::AngMove;
-use linear_movement::LinMove;
+pub use angular_movement::AngMove;
+pub use linear_movement::LinMove;
 use overload::overload;
 use std::ops;
 
-pub mod angular_movement;
-pub mod linear_movement;
+mod angular_movement;
+mod linear_movement;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Position {

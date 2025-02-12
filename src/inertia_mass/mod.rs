@@ -1,8 +1,8 @@
-use intertia::Inertia;
-use mass::Mass;
+pub use intertia::Inertia;
+pub use mass::Mass;
 
-pub mod intertia;
-pub mod mass;
+mod intertia;
+mod mass;
 
 
 #[derive(Debug, Clone, Copy, PartialEq)]

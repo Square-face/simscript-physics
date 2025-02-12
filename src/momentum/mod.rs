@@ -1,11 +1,11 @@
 use overload::overload;
 use std::ops;
 
-use angular_momentum::AngMom;
-use linear_momentum::LinMom;
+pub use angular_momentum::AngMom;
+pub use linear_momentum::LinMom;
 
-pub mod angular_momentum;
-pub mod linear_momentum;
+mod angular_momentum;
+mod linear_momentum;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Momentum {
