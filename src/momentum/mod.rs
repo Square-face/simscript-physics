@@ -1,4 +1,6 @@
 use glam::DVec3 as Vec3;
+use overload::overload;
+use std::ops;
 
 use crate::Momentum;
 
@@ -23,3 +25,11 @@ impl Momentum {
         }
     }
 }
+
+overload!((a: ?Momentum) + (b: ?Momentum) -> Momentum{Momentum{ linear: a.linear + b.linear, rotation: a.rotation + b.rotation }});
+overload!((a: ?Momentum) - (b: ?Momentum) -> Momentum{Momentum{ linear: a.linear - b.linear, rotation: a.rotation - b.rotation }});
+
+overload!((a: &mut Momentum) += (b: ?Momentum) { a.linear += b.linear; a.rotation += b.rotation; });
+overload!((a: &mut Momentum) -= (b: ?Momentum) { a.linear -= b.linear; a.rotation -= b.rotation; });
+
+overload!(-(a: ?Momentum) -> Momentum{Momentum{ linear: -a.linear, rotation: -a.rotation }});

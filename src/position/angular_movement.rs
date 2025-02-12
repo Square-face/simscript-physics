@@ -17,6 +17,8 @@ impl AngMove {
 }
 
 overload!((a: ?AngMove) + (b: ?AngMove) -> AngMove{ AngMove( a.0 * b.0 ) });
-overload!((a: ?AngMove) - (b: ?AngMove) -> AngMove{ AngMove( a.0 * b.0.inverse() ) });
+overload!((a: ?AngMove) - (b: ?AngMove) -> AngMove{ AngMove( a.0 * (-b).0) });
 overload!((a: &mut AngMove) += (b: ?AngMove) { a.0 *= b.0 });
-overload!((a: &mut AngMove) -= (b: ?AngMove) { a.0 *= b.0.inverse() });
+overload!((a: &mut AngMove) -= (b: ?AngMove) { a.0 *= (-b).0 });
+
+overload!(-(a: ?AngMove) -> AngMove{ AngMove(a.0.inverse()) });

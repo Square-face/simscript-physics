@@ -1,4 +1,6 @@
 use glam::{DQuat as Quat, DVec3 as Vec3};
+use overload::overload;
+use std::ops;
 
 use crate::Position;
 
@@ -19,3 +21,11 @@ impl Position {
         }
     }
 }
+
+overload!((a: ?Position) + (b: ?Position) -> Position{Position{ translation: a.translation + b.translation, rotation: a.rotation + b.rotation }});
+overload!((a: ?Position) - (b: ?Position) -> Position{Position{ translation: a.translation - b.translation, rotation: a.rotation - b.rotation }});
+
+overload!((a: &mut Position) += (b: ?Position) { a.translation += b.translation; a.rotation += b.rotation; });
+overload!((a: &mut Position) -= (b: ?Position) { a.translation -= b.translation; a.rotation -= b.rotation; });
+
+overload!(-(a: ?Position) -> Position{Position{ translation: -a.translation, rotation: -a.rotation }});
