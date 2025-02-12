@@ -1,16 +1,16 @@
-use mass::{Innertia, Mass};
+use inertia_mass::{Inertia, Mass};
 use momentum::{AngMom, LinMom};
 use position::{LinMove, AngMove};
 
-mod mass;
+mod inertia_mass;
 mod momentum;
 mod position;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct InnertiaMass {
     pub mass: Mass,
-    pub inertia: Innertia,
-    pub inv_inertia: Innertia,
+    pub inertia: Inertia,
+    pub inv_inertia: Inertia,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
