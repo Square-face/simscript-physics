@@ -1,23 +1,29 @@
-use glam::{DMat3, DQuat, DVec3};
+use mass::{Innertia, Mass};
+use momentum::{AngMom, LinMom};
+use position::{LinMove, AngMove};
 
-pub struct Mass {
-    pub mass: f64,
-    pub inertia: DMat3,
-    pub inv_inertia: DMat3,
+mod mass;
+mod momentum;
+mod position;
+
+pub struct InnertiaMass {
+    pub mass: Mass,
+    pub inertia: Innertia,
+    pub inv_inertia: Innertia,
 }
 
 pub struct Position {
-    pub translation: DVec3,
-    pub rotation: DQuat,
+    pub translation: LinMove,
+    pub rotation: AngMove,
 }
 
 pub struct Momentum {
-    pub linear: DVec3,
-    pub rotation: DVec3,
+    pub linear: LinMom,
+    pub rotation: AngMom,
 }
 
 pub struct State {
-    pub mass: Mass,
+    pub mass: InnertiaMass,
     pub position: Position,
     pub momentum: Momentum,
 }
