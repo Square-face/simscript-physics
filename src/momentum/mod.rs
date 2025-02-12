@@ -1,7 +1,9 @@
 use glam::DVec3 as Vec3;
 
-pub mod linear_momentum;
+use crate::Momentum;
+
 pub mod angular_momentum;
+pub mod linear_momentum;
 
 /// Represents the linear momentum an object has in all cardinal directions
 ///
@@ -12,3 +14,12 @@ pub struct LinMom(pub Vec3);
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct AngMom(pub Vec3);
+
+impl Momentum {
+    pub const fn new(lin: LinMom, ang: AngMom) -> Self {
+        Self {
+            linear: lin,
+            rotation: ang,
+        }
+    }
+}
