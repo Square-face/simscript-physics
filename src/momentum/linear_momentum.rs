@@ -2,6 +2,8 @@ use glam::DVec3 as Vec3;
 use overload::overload;
 use std::ops;
 
+use crate::{inertia_mass::Mass, velocity::LinVel};
+
 /// Represents the linear momentum an object has in all cardinal directions
 ///
 /// While no unit is used explicitly, it is recomended to use this struct as if it is represented
@@ -22,6 +24,8 @@ overload!((a: ?LinMom) + (b: ?LinMom) -> LinMom{ LinMom( a.0 + b.0 ) });
 overload!((a: ?LinMom) - (b: ?LinMom) -> LinMom{ LinMom( a.0 - b.0 ) });
 overload!((a: &mut LinMom) += (b: ?LinMom) { a.0 += b.0 });
 overload!((a: &mut LinMom) -= (b: ?LinMom) { a.0 -= b.0 });
+
+overload!((a: ?LinMom) / (b: ?Mass) -> LinVel{ LinVel( a.0 / b.0 ) });
 
 overload!((a: ?LinMom) * (b: f64) -> LinMom{ LinMom( a.0 * b ) });
 overload!((a: &mut LinMom) *= (b: f64) { a.0 *= b });
