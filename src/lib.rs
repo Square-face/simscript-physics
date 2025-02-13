@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use inertia_mass::InnertiaMass;
 use momentum::Momentum;
 use position::Position;
@@ -15,8 +17,8 @@ pub struct State {
 }
 
 impl State {
-    pub fn step(&mut self, time: f64) {
+    pub fn step(&mut self, time: Duration) {
         let velocity = self.momentum / self.mass;
-
+        self.position += velocity * time;
     }
 }
