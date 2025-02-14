@@ -5,6 +5,11 @@ mod intertia;
 mod mass;
 
 
+/// Represents the mass and its distribution in an entity
+///
+/// # Units
+/// mass: kg
+/// inertia: tensor based on kg
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct InnertiaMass {
     pub mass: Mass,

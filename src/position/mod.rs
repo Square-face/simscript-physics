@@ -6,6 +6,7 @@ use std::ops;
 mod angular_movement;
 mod linear_movement;
 
+/// Represents an entity's position and rotation
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Position {
     pub translation: LinMove,
