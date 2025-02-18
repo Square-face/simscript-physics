@@ -1,3 +1,5 @@
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+use approx_derive::Approx;
 use glam::DVec3 as Vec3;
 use overload::overload;
 use std::ops;
@@ -6,9 +8,9 @@ use crate::{inertia_mass::Mass, velocity::LinVel};
 
 /// Represents the linear momentum an object has in all cardinal directions
 ///
-/// While no unit is used explicitly, it is recomended to use this struct as if it is represented
-/// in Ns (NewtonSeconds)
-#[derive(Debug, Clone, Copy, PartialEq)]
+/// While no unit is used explicitly, it is recommended to use this struct as if it is represented
+/// in Ns (Newton-seconds)
+#[derive(Debug, Clone, Copy, PartialEq, Approx)]
 pub struct LinMom(pub Vec3);
 
 impl LinMom {
