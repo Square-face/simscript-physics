@@ -2,9 +2,13 @@ extern crate proc_macro;
 
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
+use syn::Type;
+use std::mem::discriminant;
 
 #[proc_macro_derive(Approx)]
-pub fn approx_derive(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
+pub fn approx_derive(
+    tokens: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
     let ast = syn::parse(tokens).unwrap();
 
     impl_approx(&ast)
@@ -13,11 +17,23 @@ pub fn approx_derive(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream
 fn impl_approx(ast: &syn::DeriveInput) -> proc_macro::TokenStream {
     let name = &ast.ident;
     let fields = match &ast.data {
-        syn::Data::Struct(d) => d,
+        syn::Data::Struct(d) => d.fields.clone(),
         _ => panic!("Approx derive macro only supports structs"),
     };
 
-    let (abs_diff, rel_eq, ulps_eq) = match &fields.fields {
+    let mut epsilon_type: Option<Type> = Option::None;
+    for field in &fields {
+        match epsilon_type {
+            None => epsilon_type = Some(field.ty.clone()),
+            Some(ref eps_type) if (discriminant(eps_type) == discriminant(&field.ty)) => continue,
+            _ => panic!("multiple different types in the same struct"),
+        }
+    }
+
+    let epsilon_type = epsilon_type.expect("Struct contains no types");
+    
+
+    let (abs_diff, rel_eq, ulps_eq) = match &fields {
         syn::Fields::Named(fields) => {
             let names = fields.named.iter().map(|n| n.ident.as_ref().unwrap());
             let abs_diff: Vec<TokenStream> = names
@@ -36,12 +52,11 @@ fn impl_approx(ast: &syn::DeriveInput) -> proc_macro::TokenStream {
             (abs_diff, rel_eq, ulps_eq)
         }
         syn::Fields::Unnamed(fields) => {
-            fields.unnamed.iter().for_each(|x| {
-                dbg!(x.ident.as_ref());
-                dbg!(x.to_token_stream());
-            });
-
-            let names = fields.unnamed.iter().enumerate().map(|(i,_)| syn::Index::from(i));
+            let names = fields
+                .unnamed
+                .iter()
+                .enumerate()
+                .map(|(i, _)| syn::Index::from(i));
             let abs_diff: Vec<TokenStream> = names
                 .clone()
                 .map(|name| quote! { self.#name.abs_diff_eq(other.#name, epsilon) })
@@ -60,14 +75,12 @@ fn impl_approx(ast: &syn::DeriveInput) -> proc_macro::TokenStream {
         syn::Fields::Unit => todo!(),
     };
 
-    //
-
     let gen = quote! {
         impl AbsDiffEq for #name {
-            type Epsilon = <Vec3 as AbsDiffEq>::Epsilon;
+            type Epsilon = <#epsilon_type as AbsDiffEq>::Epsilon;
 
             fn default_epsilon() -> Self::Epsilon {
-                Vec3::default_epsilon()
+                #epsilon_type::default_epsilon()
             }
 
             fn abs_diff_eq(&self, other: &Self, epsilon: Self::Epsilon) -> bool {
@@ -77,7 +90,7 @@ fn impl_approx(ast: &syn::DeriveInput) -> proc_macro::TokenStream {
 
         impl RelativeEq for #name {
             fn default_max_relative() -> Self::Epsilon {
-                Vec3::default_max_relative()
+                #epsilon_type::default_max_relative()
             }
 
             fn relative_eq(
@@ -92,7 +105,7 @@ fn impl_approx(ast: &syn::DeriveInput) -> proc_macro::TokenStream {
 
         impl UlpsEq for #name {
             fn default_max_ulps() -> u32 {
-                Vec3::default_max_ulps()
+                #epsilon_type::default_max_ulps()
             }
 
             fn ulps_eq(&self, other: &Self, epsilon: Self::Epsilon, max_ulps: u32) -> bool {

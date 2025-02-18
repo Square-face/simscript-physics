@@ -1,11 +1,13 @@
 #![allow(clippy::suspicious_op_assign_impl)]
 #![allow(clippy::suspicious_arithmetic_impl)]
 
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+use approx_derive::Approx;
 use glam::DQuat as Quat;
 use overload::overload;
 use std::ops;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Approx)]
 pub struct AngMove(pub Quat);
 
 impl AngMove {
