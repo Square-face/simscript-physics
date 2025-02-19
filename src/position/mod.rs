@@ -14,6 +14,7 @@ pub struct Position {
 }
 
 impl Position {
+    pub const ZERO: Self = Self::new(LinMove::ZERO, AngMove::ZERO);
     pub const fn new(lin: LinMove, ang: AngMove) -> Self {
         Self {
             translation: lin,

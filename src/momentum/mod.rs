@@ -16,6 +16,8 @@ pub struct Momentum {
 }
 
 impl Momentum {
+    pub const ZERO: Self = Self::new(LinMom::ZERO, AngMom::ZERO);
+
     pub const fn new(lin: LinMom, ang: AngMom) -> Self {
         Self {
             linear: lin,

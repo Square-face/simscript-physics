@@ -9,7 +9,6 @@ pub mod momentum;
 pub mod position;
 pub mod velocity;
 
-
 /// Represents the kinetic state of a simulated entity
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct State {
@@ -19,6 +18,22 @@ pub struct State {
 }
 
 impl State {
+    pub const fn new(mass: InnertiaMass, position: Position, momentum: Momentum) -> Self {
+        Self {
+            mass,
+            position,
+            momentum,
+        }
+    }
+
+    pub const fn new_stationary(mass: InnertiaMass, position: Position) -> Self {
+        Self::new(mass, position, Momentum::ZERO)
+    }
+
+    pub const fn new_zeroed(mass: InnertiaMass) -> Self {
+        Self::new(mass, Position::ZERO, Momentum::ZERO)
+    }
+
     /// Steps the state forward by a [Duration]
     ///
     /// Updates the position and rotation of the simulated entity by using its stored momentum and
