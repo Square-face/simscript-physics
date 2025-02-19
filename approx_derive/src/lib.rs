@@ -1,7 +1,7 @@
 extern crate proc_macro;
 
 use proc_macro2::TokenStream;
-use quote::{quote, ToTokens};
+use quote::quote;
 use syn::Type;
 use std::mem::discriminant;
 
