@@ -1,6 +1,8 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use approx_derive::Approx;
 use glam::DVec3 as Vec3;
+use overload::overload;
+use std::ops;
 
 pub use force::Force;
 pub use torque::Torque;
@@ -29,3 +31,15 @@ impl Moment {
         Torque::new(self.offset.cross(self.force))
     }
 }
+
+overload!((a: ?Moment) + (b: ?Moment) -> Moment{ Moment::new( a.offset + b.offset, a.force + b.force ) });
+overload!((a: ?Moment) - (b: ?Moment) -> Moment{ Moment::new( a.offset - b.offset, a.force - b.force ) });
+overload!((a: &mut Moment) += (b: ?Moment) { a.offset += b.offset; a.force += b.force; });
+overload!((a: &mut Moment) -= (b: ?Moment) { a.offset -= b.offset; a.force -= b.force; });
+
+overload!((a: ?Moment) * (b: f64) -> Moment{ Moment::new(a.offset * b, a.force * b) });
+overload!((a: ?Moment) / (b: f64) -> Moment{ Moment::new(a.offset / b, a.force * b) });
+overload!((a: &mut Moment) *= (b: f64) { a.offset *= b; a.force *= b; });
+overload!((a: &mut Moment) /= (b: f64) { a.offset /= b; a.force /= b; });
+
+overload!(-(a: ?Moment) -> Moment{ Moment::new(-a.offset, -a.force) });
