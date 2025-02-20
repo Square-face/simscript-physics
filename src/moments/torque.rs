@@ -2,7 +2,9 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use approx_derive::Approx;
 use glam::DVec3 as Vec3;
 use overload::overload;
-use std::ops;
+use std::{ops, time::Duration};
+
+use crate::momentum::AngMom;
 
 #[derive(Debug, Clone, Copy, PartialEq, Approx)]
 pub struct Torque(pub Vec3);
@@ -30,3 +32,5 @@ overload!((a: &mut Torque) *= (b: f64) {a.0 *= b});
 overload!((a: &mut Torque) /= (b: f64) {a.0 /= b});
 
 overload!(-(a: ?Torque) -> Torque{Torque::new(-a.0)});
+
+overload!((a: ?Torque) * (b: ?Duration) -> AngMom{ AngMom(a.0 * b.as_secs_f64()) });

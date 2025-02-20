@@ -2,10 +2,12 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use approx_derive::Approx;
 use glam::DVec3 as Vec3;
 use overload::overload;
-use std::ops;
+use std::{ops, time::Duration};
 
 pub use force::Force;
 pub use torque::Torque;
+
+use crate::momentum::Momentum;
 
 mod force;
 mod torque;
@@ -43,3 +45,5 @@ overload!((a: &mut Moment) *= (b: f64) { a.offset *= b; a.force *= b; });
 overload!((a: &mut Moment) /= (b: f64) { a.offset /= b; a.force /= b; });
 
 overload!(-(a: ?Moment) -> Moment{ Moment::new(-a.offset, -a.force) });
+
+overload!((a: ?Moment) * (b: Duration) -> Momentum{ Momentum::new(a.force() * b, a.torque() * b) });

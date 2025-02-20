@@ -2,7 +2,9 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use approx_derive::Approx;
 use glam::DVec3 as Vec3;
 use overload::overload;
-use std::ops;
+use std::{ops, time::Duration};
+
+use crate::momentum::LinMom;
 
 #[derive(Debug, Clone, Copy, PartialEq, Approx)]
 pub struct Force(pub Vec3);
@@ -34,3 +36,5 @@ overload!((a: &mut Force) *= (b: f64) {a.0 *= b});
 overload!((a: &mut Force) /= (b: f64) {a.0 /= b});
 
 overload!(-(a: ?Force) -> Force{Force::new(-a.0)});
+
+overload!((a: ?Force) * (b: ?Duration) -> LinMom{ LinMom(a.0 * b.as_secs_f64()) });
