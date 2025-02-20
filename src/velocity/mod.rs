@@ -4,7 +4,7 @@ use std::{ops, time::Duration};
 pub use angular_velocity::AngVel;
 pub use linear_velocity::LinVel;
 
-use crate::position::Position;
+use crate::transform::Transform;
 
 mod angular_velocity;
 mod linear_velocity;
@@ -30,6 +30,6 @@ overload!((a: ?Velocity) - (b: ?Velocity) -> Velocity{Velocity{ linear: a.linear
 overload!((a: &mut Velocity) += (b: ?Velocity) { a.linear += b.linear; a.angular += b.angular; });
 overload!((a: &mut Velocity) -= (b: ?Velocity) { a.linear -= b.linear; a.angular -= b.angular; });
 
-overload!((a: ?Velocity) * (b: ?Duration) -> Position{ Position::new(a.linear * b, a.angular * b) });
+overload!((a: ?Velocity) * (b: ?Duration) -> Transform{ Transform::new(a.linear * b, a.angular * b) });
 
 overload!(-(a: ?Velocity) -> Velocity{Velocity{ linear: -a.linear, angular: -a.angular }});

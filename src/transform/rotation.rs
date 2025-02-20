@@ -8,23 +8,23 @@ use overload::overload;
 use std::ops;
 
 #[derive(Debug, Clone, Copy, PartialEq, Approx)]
-pub struct AngMove(pub Quat);
+pub struct Rotation(pub Quat);
 
-impl AngMove {
+impl Rotation {
     pub const ZERO: Self = Self::new(Quat::IDENTITY);
 
-    /// Create a new [AngMove] with the given starting rotation
+    /// Create a new [Rotation] with the given starting rotation
     pub const fn new(ang: Quat) -> Self {
         Self(ang)
     }
 }
 
-overload!((a: ?AngMove) + (b: ?AngMove) -> AngMove{ AngMove( a.0 * b.0 ) });
-overload!((a: ?AngMove) - (b: ?AngMove) -> AngMove{ AngMove( a.0 * (-b).0) });
-overload!((a: &mut AngMove) += (b: ?AngMove) { a.0 *= b.0 });
-overload!((a: &mut AngMove) -= (b: ?AngMove) { a.0 *= (-b).0 });
+overload!((a: ?Rotation) + (b: ?Rotation) -> Rotation{ Rotation( a.0 * b.0 ) });
+overload!((a: ?Rotation) - (b: ?Rotation) -> Rotation{ Rotation( a.0 * (-b).0) });
+overload!((a: &mut Rotation) += (b: ?Rotation) { a.0 *= b.0 });
+overload!((a: &mut Rotation) -= (b: ?Rotation) { a.0 *= (-b).0 });
 
-overload!(-(a: ?AngMove) -> AngMove{ AngMove(a.0.inverse()) });
+overload!(-(a: ?Rotation) -> Rotation{ Rotation(a.0.inverse()) });
 
 #[cfg(test)]
 mod constructors {
@@ -34,13 +34,13 @@ mod constructors {
     #[test]
     fn test_new() {
         let q = Quat::IDENTITY;
-        let ang_move = AngMove::new(q);
-        assert_eq!(ang_move.0, q);
+        let rotation = Rotation::new(q);
+        assert_eq!(rotation.0, q);
     }
 
     #[test]
     fn test_zero() {
-        assert_eq!(AngMove::ZERO.0, Quat::IDENTITY);
+        assert_eq!(Rotation::ZERO.0, Quat::IDENTITY);
     }
 }
 
@@ -53,15 +53,15 @@ mod aritmetic {
     #[test]
     fn test_negation() {
         let q = Quat::from_rotation_x(1.0);
-        let ang_move = AngMove::new(q);
+        let rotation = Rotation::new(q);
 
         // The inverse of a quaternion should undo its effect
-        assert_ulps_eq!(-ang_move.0, -q);
+        assert_ulps_eq!(-rotation.0, -q);
     }
 
     #[test]
     fn test_addition() {
-        let a = AngMove::new(Quat::from_rotation_x(0.5));
+        let a = Rotation::new(Quat::from_rotation_x(0.5));
 
         // Multiplication order matters for quaternions
         assert_ulps_eq!((a + a).0, Quat::from_rotation_x(1.0));
@@ -69,7 +69,7 @@ mod aritmetic {
 
     #[test]
     fn test_subtraction() {
-        let a = AngMove::new(Quat::from_rotation_y(0.2));
+        let a = Rotation::new(Quat::from_rotation_y(0.2));
 
         // Multiplication order matters for quaternions
         assert_ulps_eq!((a - a).0, Quat::IDENTITY);
@@ -86,8 +86,8 @@ mod assign_arithmetic {
     fn test_addassign() {
         let q1 = Quat::from_rotation_x(0.5);
         let q2 = Quat::from_rotation_y(0.5);
-        let mut a = AngMove::new(q1);
-        let b = AngMove::new(q2);
+        let mut a = Rotation::new(q1);
+        let b = Rotation::new(q2);
 
         a += b;
 
@@ -98,8 +98,8 @@ mod assign_arithmetic {
     fn test_subassign() {
         let q1 = Quat::from_rotation_x(0.5);
         let q2 = Quat::from_rotation_y(0.5);
-        let mut a = AngMove::new(q1);
-        let b = AngMove::new(q2);
+        let mut a = Rotation::new(q1);
+        let b = Rotation::new(q2);
 
         a -= b;
 
@@ -119,8 +119,8 @@ mod compound_arithmetic {
         let q1 = Quat::from_rotation_x(0.3);
         let q2 = Quat::from_rotation_y(0.5);
 
-        let a = AngMove::new(q1);
-        let b = AngMove::new(q2);
+        let a = Rotation::new(q1);
+        let b = Rotation::new(q2);
 
         // With rotation, the order of operation matters, this is invalid
         assert_ulps_eq!(a + b, b + a);

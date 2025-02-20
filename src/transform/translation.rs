@@ -5,9 +5,9 @@ use overload::overload;
 use std::ops;
 
 #[derive(Debug, Clone, Copy, PartialEq, Approx)]
-pub struct LinMove(pub Vec3);
+pub struct Translation(pub Vec3);
 
-impl LinMove {
+impl Translation {
     pub const ZERO: Self = Self::splat(0.);
 
     pub const fn new(x: f64, y: f64, z: f64) -> Self {
@@ -32,18 +32,18 @@ impl LinMove {
 }
 
 // Adding a subtracting with self is a valid op
-overload!((a: ?LinMove) + (b: ?LinMove) -> LinMove{ LinMove( a.0 + b.0 ) });
-overload!((a: ?LinMove) - (b: ?LinMove) -> LinMove{ LinMove( a.0 - b.0 ) });
-overload!((a: &mut LinMove) += (b: ?LinMove) { a.0 += b.0 });
-overload!((a: &mut LinMove) -= (b: ?LinMove) { a.0 -= b.0 });
+overload!((a: ?Translation) + (b: ?Translation) -> Translation{ Translation( a.0 + b.0 ) });
+overload!((a: ?Translation) - (b: ?Translation) -> Translation{ Translation( a.0 - b.0 ) });
+overload!((a: &mut Translation) += (b: ?Translation) { a.0 += b.0 });
+overload!((a: &mut Translation) -= (b: ?Translation) { a.0 -= b.0 });
 
 // Multiplying or dividing by scalars shouldn't change the type
-overload!((a: ?LinMove) * (b: f64) -> LinMove{ LinMove( a.0 * b ) });
-overload!((a: ?LinMove) / (b: f64) -> LinMove{ LinMove( a.0 / b ) });
-overload!((a: &mut LinMove) *= (b: f64) { a.0 *= b });
-overload!((a: &mut LinMove) /= (b: f64) { a.0 /= b });
+overload!((a: ?Translation) * (b: f64) -> Translation{ Translation( a.0 * b ) });
+overload!((a: ?Translation) / (b: f64) -> Translation{ Translation( a.0 / b ) });
+overload!((a: &mut Translation) *= (b: f64) { a.0 *= b });
+overload!((a: &mut Translation) /= (b: f64) { a.0 /= b });
 
-overload!(-(a: ?LinMove) -> LinMove{ LinMove( -a.0 ) });
+overload!(-(a: ?Translation) -> Translation{ Translation( -a.0 ) });
 
 #[cfg(test)]
 mod constructors {
@@ -52,37 +52,37 @@ mod constructors {
 
     #[test]
     fn test_new() {
-        let v = LinMove::new(1.0, 2.0, 3.0);
+        let v = Translation::new(1.0, 2.0, 3.0);
         assert_ulps_eq!(v.0, Vec3::new(1.0, 2.0, 3.0));
     }
 
     #[test]
     fn test_splat() {
-        let v = LinMove::splat(2.0);
+        let v = Translation::splat(2.0);
         assert_ulps_eq!(v.0, Vec3::new(2.0, 2.0, 2.0));
     }
 
     #[test]
     fn test_with_x() {
-        let v = LinMove::with_x(3.0);
+        let v = Translation::with_x(3.0);
         assert_ulps_eq!(v.0, Vec3::new(3.0, 0.0, 0.0));
     }
 
     #[test]
     fn test_with_y() {
-        let v = LinMove::with_y(4.0);
+        let v = Translation::with_y(4.0);
         assert_ulps_eq!(v.0, Vec3::new(0.0, 4.0, 0.0));
     }
 
     #[test]
     fn test_with_z() {
-        let v = LinMove::with_z(5.0);
+        let v = Translation::with_z(5.0);
         assert_ulps_eq!(v.0, Vec3::new(0.0, 0.0, 5.0));
     }
 
     #[test]
     fn test_zero() {
-        assert_ulps_eq!(LinMove::ZERO, LinMove::splat(0.0));
+        assert_ulps_eq!(Translation::ZERO, Translation::splat(0.0));
     }
 }
 
@@ -93,30 +93,30 @@ mod arithmetic {
 
     #[test]
     fn test_add() {
-        let a = LinMove::new(1.0, 2.0, 3.0);
-        let b = LinMove::new(4.0, 5.0, 6.0);
+        let a = Translation::new(1.0, 2.0, 3.0);
+        let b = Translation::new(4.0, 5.0, 6.0);
         let result = a + b;
         assert_ulps_eq!(result.0, Vec3::new(5.0, 7.0, 9.0));
     }
 
     #[test]
     fn test_sub() {
-        let a = LinMove::new(4.0, 5.0, 6.0);
-        let b = LinMove::new(1.0, 2.0, 3.0);
+        let a = Translation::new(4.0, 5.0, 6.0);
+        let b = Translation::new(1.0, 2.0, 3.0);
         let result = a - b;
         assert_ulps_eq!(result.0, Vec3::new(3.0, 3.0, 3.0));
     }
 
     #[test]
     fn test_neg() {
-        let a = LinMove::new(1.0, -2.0, 3.0);
+        let a = Translation::new(1.0, -2.0, 3.0);
         let result = -a;
         assert_ulps_eq!(result.0, Vec3::new(-1.0, 2.0, -3.0));
     }
 
     #[test]
     fn test_mul_scalar() {
-        let a = LinMove::new(1.0, -2.0, 3.0);
+        let a = Translation::new(1.0, -2.0, 3.0);
         let result = a * 2.0;
         assert_ulps_eq!(result.0, Vec3::new(2.0, -4.0, 6.0));
     }
@@ -128,23 +128,23 @@ mod assignment_arithmetic {
 
     #[test]
     fn test_add_assign() {
-        let mut a = LinMove::new(1.0, 2.0, 3.0);
-        let b = LinMove::new(4.0, 5.0, 6.0);
+        let mut a = Translation::new(1.0, 2.0, 3.0);
+        let b = Translation::new(4.0, 5.0, 6.0);
         a += b;
         assert_ulps_eq!(a.0, Vec3::new(5.0, 7.0, 9.0));
     }
 
     #[test]
     fn test_sub_assign() {
-        let mut a = LinMove::new(4.0, 5.0, 6.0);
-        let b = LinMove::new(1.0, 2.0, 3.0);
+        let mut a = Translation::new(4.0, 5.0, 6.0);
+        let b = Translation::new(1.0, 2.0, 3.0);
         a -= b;
         assert_ulps_eq!(a.0, Vec3::new(3.0, 3.0, 3.0));
     }
 
     #[test]
     fn test_mul_assign_scalar() {
-        let mut a = LinMove::new(1.0, -2.0, 3.0);
+        let mut a = Translation::new(1.0, -2.0, 3.0);
         a *= 2.0;
         assert_ulps_eq!(a.0, Vec3::new(2.0, -4.0, 6.0));
     }
@@ -156,8 +156,8 @@ mod equality {
 
     #[test]
     fn test_approx_eq() {
-        let a = LinMove::with_x(0.1) + LinMove::with_x(0.2);
-        let b = LinMove::with_x(0.3);
+        let a = Translation::with_x(0.1) + Translation::with_x(0.2);
+        let b = Translation::with_x(0.3);
 
         assert_ne!(a, b); // Normal compare should fail this
 

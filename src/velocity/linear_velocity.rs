@@ -6,7 +6,7 @@ use std::{ops, time::Duration};
 
 extern crate approx;
 
-use crate::position::LinMove;
+use crate::transform::Translation;
 
 #[derive(Debug, Clone, Copy, PartialEq, Approx)]
 pub struct LinVel(pub Vec3);
@@ -43,7 +43,7 @@ overload!((a: &mut LinVel) -= (b: ?LinVel) { a.0 -= b.0 });
 overload!((a: ?LinVel) * (b: f64) -> LinVel{ LinVel( a.0 * b ) });
 overload!((a: &mut LinVel) *= (b: f64) { a.0 *= b });
 
-overload!((a: ?LinVel) * (b: ?Duration) -> LinMove{ LinMove(a.0 * b.as_secs_f64()) });
+overload!((a: ?LinVel) * (b: ?Duration) -> Translation{ Translation(a.0 * b.as_secs_f64()) });
 
 overload!(-(a: ?LinVel) -> LinVel{ LinVel( -a.0 ) });
 
@@ -81,8 +81,8 @@ mod same_type_arithmetic {
 
 #[cfg(test)]
 mod scalar_arithmetic {
-    use approx::assert_ulps_eq;
     use super::LinVel;
+    use approx::assert_ulps_eq;
 
     #[test]
     fn scale() {
@@ -96,18 +96,13 @@ mod scalar_arithmetic {
 
 #[cfg(test)]
 mod unit_conversion {
-    use std::time::Duration;
-
+    use super::*;
     use approx::assert_ulps_eq;
 
-    use crate::position::LinMove;
-
-    use super::LinVel;
-
     #[test]
-    fn to_move() {
+    fn to_translation() {
         let v = LinVel::new(83.7, 47.1, 139.2);
         let t = Duration::from_secs_f64(5.);
-        assert_ulps_eq!(v*t, LinMove::new(418.5, 235.5, 696.));
+        assert_ulps_eq!(v * t, Translation::new(418.5, 235.5, 696.));
     }
 }
