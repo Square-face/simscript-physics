@@ -1,3 +1,5 @@
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+use approx_derive::Approx;
 use glam::DVec3 as Vec3;
 
 pub use force::Force;
@@ -6,7 +8,7 @@ pub use torque::Torque;
 mod force;
 mod torque;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Approx)]
 pub struct Moment {
     pub offset: Vec3,
     pub force: Vec3,

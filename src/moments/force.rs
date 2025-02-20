@@ -1,6 +1,8 @@
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+use approx_derive::Approx;
 use glam::DVec3 as Vec3;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Approx)]
 pub struct Force(pub Vec3);
 
 impl Force {

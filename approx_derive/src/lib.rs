@@ -42,11 +42,11 @@ fn impl_approx(ast: &syn::DeriveInput) -> proc_macro::TokenStream {
                 .collect();
             let rel_eq: Vec<TokenStream> = names
                 .clone()
-                .map(|name| quote! { self.#name.relative_eq(other.#name, epsilon, max_relative)})
+                .map(|name| quote! { self.#name.relative_eq(&other.#name, epsilon, max_relative)})
                 .collect();
             let ulps_eq: Vec<TokenStream> = names
                 .clone()
-                .map(|name| quote! { self.#name.ulps_eq(other.#name, epsilon, max_ulps)})
+                .map(|name| quote! { self.#name.ulps_eq(&other.#name, epsilon, max_ulps)})
                 .collect();
 
             (abs_diff, rel_eq, ulps_eq)
