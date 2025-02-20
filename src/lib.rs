@@ -5,6 +5,7 @@ use momentum::Momentum;
 use transform::Transform;
 
 pub mod inertia_mass;
+pub mod moments;
 pub mod momentum;
 pub mod transform;
 pub mod velocity;
