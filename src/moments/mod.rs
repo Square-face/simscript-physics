@@ -25,12 +25,20 @@ impl Moment {
         Self { offset, force }
     }
 
+    pub const fn from_force(force: Vec3) -> Self {
+        Self {offset: Vec3::ZERO, force}
+    }
+
     pub const fn force(&self) -> Force {
         Force::new(self.force)
     }
 
     pub fn torque(&self) -> Torque {
         Torque::new(self.offset.cross(self.force))
+    }
+
+    pub fn magnitude(&self) -> f64 {
+        (self.offset.length_squared() * self.force.length_squared()).sqrt()
     }
 }
 

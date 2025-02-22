@@ -1,3 +1,4 @@
+use glam::DVec3 as Vec3;
 use overload::overload;
 use std::ops;
 
@@ -24,6 +25,14 @@ impl Momentum {
             rotation: ang,
         }
     }
+
+    pub const fn from_lin(lin: Vec3) -> Self {
+        Self::new(LinMom::new(lin), AngMom::ZERO)
+    }
+
+    pub const fn from_ang(ang: Vec3) -> Self {
+        Self::new(LinMom::ZERO, AngMom::new(ang))
+    }
 }
 
 overload!((a: ?Momentum) + (b: ?Momentum) -> Momentum{Momentum{ linear: a.linear + b.linear, rotation: a.rotation + b.rotation }});
@@ -31,6 +40,12 @@ overload!((a: ?Momentum) - (b: ?Momentum) -> Momentum{Momentum{ linear: a.linear
 
 overload!((a: &mut Momentum) += (b: ?Momentum) { a.linear += b.linear; a.rotation += b.rotation; });
 overload!((a: &mut Momentum) -= (b: ?Momentum) { a.linear -= b.linear; a.rotation -= b.rotation; });
+
+overload!((a: ?Momentum) * (b: f64) -> Momentum{Momentum{ linear: a.linear * b, rotation: a.rotation * b }});
+overload!((a: ?Momentum) / (b: f64) -> Momentum{Momentum{ linear: a.linear / b, rotation: a.rotation / b }});
+
+overload!((a: &mut Momentum) *= (b: f64) { a.linear *= b; a.rotation *= b; });
+overload!((a: &mut Momentum) /= (b: f64) { a.linear /= b; a.rotation /= b; });
 
 overload!((a: ?Momentum) / (b: ?InnertiaMass) -> Velocity{ Velocity::new(a.linear / b.mass, a.rotation / b.inertia) });
 

@@ -93,6 +93,15 @@ mod to_rotation {
     use super::*;
 
     #[test]
+    fn single_axis() {
+        let av = AngVel::with_z(1.0);
+        let dur = Duration::from_secs_f64(1.);
+        let res = av * dur;
+        let expected = Quat::from_rotation_z(1.);
+        assert_ulps_eq!(res.0, expected);
+    }
+
+    #[test]
     fn test_mul_by_duration() {
         let av = AngVel(Vec3::new(1.0, 2.0, 3.0));
         let duration = Duration::from_secs_f64(2.0);
@@ -127,4 +136,3 @@ mod assign_arithmetic {
         assert_eq!(av, AngVel(Vec3::new(4.0, 6.0, 8.0)));
     }
 }
-

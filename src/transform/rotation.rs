@@ -126,3 +126,20 @@ mod compound_arithmetic {
         assert_ulps_eq!(a + b, b + a);
     }
 }
+
+#[cfg(test)]
+mod rotating_vectors {
+    use std::f64::consts::PI;
+
+    use approx::assert_ulps_eq;
+    use glam::DVec3;
+
+    use super::*;
+
+    #[test]
+    fn unit() {
+        let v = DVec3::new(1.0, 0.0, 0.0);
+        let r = Rotation::new(Quat::from_rotation_z(PI/2.));
+        assert_ulps_eq!(r.0*v, DVec3::new(0.0, 1.0, 0.0));
+    }
+}

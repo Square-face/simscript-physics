@@ -16,7 +16,8 @@ pub struct Velocity {
 }
 
 impl Velocity {
-    pub fn new(lin: LinVel, ang: AngVel) -> Self {
+    pub const ZERO: Self = Self::new(LinVel::ZERO, AngVel::ZERO);
+    pub const fn new(lin: LinVel, ang: AngVel) -> Self {
         Self {
             linear: lin,
             angular: ang,

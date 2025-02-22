@@ -30,6 +30,8 @@ overload!((a: &mut LinMom) -= (b: ?LinMom) { a.0 -= b.0 });
 overload!((a: ?LinMom) / (b: ?Mass) -> LinVel{ LinVel( a.0 / b.0 ) });
 
 overload!((a: ?LinMom) * (b: f64) -> LinMom{ LinMom( a.0 * b ) });
+overload!((a: ?LinMom) / (b: f64) -> LinMom{ LinMom( a.0 / b ) });
 overload!((a: &mut LinMom) *= (b: f64) { a.0 *= b });
+overload!((a: &mut LinMom) /= (b: f64) { a.0 /= b });
 
 overload!(-(a: ?LinMom) -> LinMom{ LinMom( -a.0 ) });
