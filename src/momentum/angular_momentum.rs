@@ -1,5 +1,5 @@
 
-use glam::DVec3 as Vec3;
+use glam::{DMat3, DVec3 as Vec3};
 use overload::overload;
 use std::ops;
 
@@ -22,7 +22,7 @@ overload!((a: ?AngMom) - (b: ?AngMom) -> AngMom{ AngMom( a.0 - b.0 ) });
 overload!((a: &mut AngMom) += (b: ?AngMom) { a.0 += b.0 });
 overload!((a: &mut AngMom) -= (b: ?AngMom) { a.0 -= b.0 });
 
-overload!((a: ?AngMom) / (b: ?Inertia) -> AngVel{ AngVel(b.0.mul_vec3(a.0)) });
+overload!((a: ?AngMom) / (b: ?DMat3) -> AngVel{ AngVel(b.mul_vec3(a.0)) });
 
 overload!((a: ?AngMom) * (b: f64) -> AngMom{ AngMom( a.0 * b ) });
 overload!((a: ?AngMom) / (b: f64) -> AngMom{ AngMom( a.0 / b ) });
