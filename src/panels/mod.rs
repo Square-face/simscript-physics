@@ -35,7 +35,7 @@ impl Panel {
     pub fn get_rel_vel(&self, rot: &Quat, vel: &Velocity) -> LinVel {
         let rotated = rot.mul_vec3(self.offset);
         let rot_vel = vel.angular.0.cross(rotated);
-        LinVel(rot.mul_vec3(vel.linear.0) + rot_vel)
+        LinVel(rot.mul_vec3(vel.linear.0) - rot_vel)
     }
 
     pub fn to_moment(&self, state: &State) -> Moment {
