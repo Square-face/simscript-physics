@@ -39,10 +39,13 @@ impl Panel {
     }
 
     pub fn to_moment(&self, state: &State) -> Moment {
-        let vel = self.get_rel_vel(&state.transform.rotation.0, &(state.momentum / state.mass));
-        let force = self.to_force(&vel);
+        let rot = state.transform.rotation.0;
+        let vel = self.get_rel_vel(&rot, &(state.momentum / state.mass));
 
-        Moment::new(state.transform.rotation.0.mul_vec3(self.offset), force.0)
+        let force = Force::new(rot.mul_vec3(self.to_force(&vel).0));
+
+
+        Moment::new(rot.mul_vec3(self.offset), force.0)
     }
 }
 
@@ -224,10 +227,10 @@ mod to_moment {
         let pyz = Panel::new(Vec3::Y, Vec3::Z, 1.);
         let pzx = Panel::new(Vec3::Z, Vec3::X, 1.);
 
-        // momentum *2 bcs inertia is a bit weird
-        let sx = State::new(mass_x(), Transform::ZERO, Momentum::from_ang(Vec3::X) * 2.);
-        let sy = State::new(mass_y(), Transform::ZERO, Momentum::from_ang(Vec3::Y) * 2.);
-        let sz = State::new(mass_z(), Transform::ZERO, Momentum::from_ang(Vec3::Z) * 2.);
+        // momentum /2 bcs inertia is a bit weird
+        let sx = State::new(mass_x(), Transform::ZERO, Momentum::from_ang(Vec3::X / 2.));
+        let sy = State::new(mass_y(), Transform::ZERO, Momentum::from_ang(Vec3::Y / 2.));
+        let sz = State::new(mass_z(), Transform::ZERO, Momentum::from_ang(Vec3::Z / 2.));
 
         assert_ulps_eq!(pxy.to_moment(&sx).magnitude(), 0.);
         assert_ulps_eq!(pxy.to_moment(&sy).magnitude(), 0.);
