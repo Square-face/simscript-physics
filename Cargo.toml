@@ -13,3 +13,6 @@ approx_derive = {path="./approx_derive"}
 members = [
     "approx_derive",
 ]
+
+[package.metadata.scripts]
+ntest = "cargo nextest run"

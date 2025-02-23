@@ -39,17 +39,20 @@ impl Panel {
         Self::new(offset, normal, self.area)
     }
 
-    pub fn tip_velocity(&self, rot: &Quat, vel: &AngVel) -> LinVel {
+    pub fn rotation_based_velocity(&self, rot: &Quat, vel: &AngVel) -> LinVel {
         LinVel(vel.0.xzy().cross(self.rotated(rot).offset.xzy()).xzy())
     }
 
-    pub fn get_rel_vel(&self, rot: &Quat, vel: &Velocity) -> LinVel {
-        LinVel(rot.mul_vec3(vel.linear.0)) + self.tip_velocity(rot, &vel.angular)
+    pub fn tip_velocity(&self, rot: &Quat, vel: &Velocity) -> LinVel {
+        let linear = rot.mul_vec3(vel.linear.0);
+        let angular = self.rotation_based_velocity(rot, &vel.angular);
+        LinVel(linear) + angular
     }
 
     pub fn to_moment(&self, state: &State) -> Moment {
         let rot = state.transform.rotation.0;
-        let vel = self.get_rel_vel(&rot, &(state.momentum / state.mass));
+        let vel = state.momentum / state.mass;
+        let vel = self.tip_velocity(&rot, &vel);
 
         let force = Force::new(rot.mul_vec3(self.to_force(&vel).0));
 
@@ -99,6 +102,33 @@ mod test_utils {
             LinVel::with_x(1.0),
             LinVel::with_y(1.0),
             LinVel::with_z(1.0),
+        )
+    }
+
+    #[allow(clippy::type_complexity)]
+    pub fn all_vel() -> (
+        (Velocity, Velocity, Velocity),
+        (Velocity, Velocity, Velocity),
+        (Velocity, Velocity, Velocity),
+    ) {
+        let (ax, ay, az) = xyz_angvel();
+        let (lx, ly, lz) = xyz_linvel();
+        (
+            (
+                Velocity::new(lx, ax),
+                Velocity::new(lx, ay),
+                Velocity::new(lx, az),
+            ),
+            (
+                Velocity::new(ly, ax),
+                Velocity::new(ly, ay),
+                Velocity::new(ly, az),
+            ),
+            (
+                Velocity::new(lz, ax),
+                Velocity::new(lz, ay),
+                Velocity::new(lz, az),
+            ),
         )
     }
 }
@@ -156,7 +186,7 @@ mod rotated {
 }
 
 #[cfg(test)]
-mod tip_velocity {
+mod rotation_based_velocity {
     use super::*;
     use approx::assert_ulps_eq;
     use test_utils::*;
@@ -167,7 +197,7 @@ mod tip_velocity {
         let rot = Quat::IDENTITY;
         let vel = AngVel::ZERO;
 
-        assert_ulps_eq!(p1.tip_velocity(&rot, &vel), LinVel::ZERO);
+        assert_ulps_eq!(p1.rotation_based_velocity(&rot, &vel), LinVel::ZERO);
     }
 
     #[test]
@@ -177,9 +207,9 @@ mod tip_velocity {
         let (px, py, pz) = xyz_panels();
         let (vx, vy, vz) = xyz_angvel();
 
-        assert_ulps_eq!(px.tip_velocity(&q1, &vx), LinVel::ZERO);
-        assert_ulps_eq!(py.tip_velocity(&q1, &vy), LinVel::ZERO);
-        assert_ulps_eq!(pz.tip_velocity(&q1, &vz), LinVel::ZERO);
+        assert_ulps_eq!(px.rotation_based_velocity(&q1, &vx), LinVel::ZERO);
+        assert_ulps_eq!(py.rotation_based_velocity(&q1, &vy), LinVel::ZERO);
+        assert_ulps_eq!(pz.rotation_based_velocity(&q1, &vz), LinVel::ZERO);
     }
 
     #[test]
@@ -190,9 +220,9 @@ mod tip_velocity {
         let (ax, ay, az) = xyz_angvel();
         let (vx, vy, vz) = xyz_linvel();
 
-        assert_ulps_eq!(px.tip_velocity(&q1, &ay), vz);
-        assert_ulps_eq!(py.tip_velocity(&q1, &az), vx);
-        assert_ulps_eq!(pz.tip_velocity(&q1, &ax), vy);
+        assert_ulps_eq!(px.rotation_based_velocity(&q1, &ay), vz);
+        assert_ulps_eq!(py.rotation_based_velocity(&q1, &az), vx);
+        assert_ulps_eq!(pz.rotation_based_velocity(&q1, &ax), vy);
     }
 
     #[test]
@@ -203,9 +233,9 @@ mod tip_velocity {
         let (ax, ay, az) = xyz_angvel();
         let (vx, vy, vz) = xyz_linvel();
 
-        assert_ulps_eq!(px.tip_velocity(&q1, &ay), -vz);
-        assert_ulps_eq!(py.tip_velocity(&q1, &az), -vx);
-        assert_ulps_eq!(pz.tip_velocity(&q1, &ax), -vy);
+        assert_ulps_eq!(px.rotation_based_velocity(&q1, &ay), -vz);
+        assert_ulps_eq!(py.rotation_based_velocity(&q1, &az), -vx);
+        assert_ulps_eq!(pz.rotation_based_velocity(&q1, &ax), -vy);
     }
 
     #[test]
@@ -216,9 +246,9 @@ mod tip_velocity {
         let (ax, ay, az) = xyz_angvel();
         let (vx, vy, vz) = xyz_linvel();
 
-        assert_ulps_eq!(px.tip_velocity(&q1, &-ay), -vz);
-        assert_ulps_eq!(py.tip_velocity(&q1, &-az), -vx);
-        assert_ulps_eq!(pz.tip_velocity(&q1, &-ax), -vy);
+        assert_ulps_eq!(px.rotation_based_velocity(&q1, &-ay), -vz);
+        assert_ulps_eq!(py.rotation_based_velocity(&q1, &-az), -vx);
+        assert_ulps_eq!(pz.rotation_based_velocity(&q1, &-ax), -vy);
     }
 
     #[test]
@@ -229,9 +259,9 @@ mod tip_velocity {
         let (ax, ay, az) = xyz_angvel();
         let (vx, vy, vz) = xyz_linvel();
 
-        assert_ulps_eq!(px.tip_velocity(&q1, &-ay), vz);
-        assert_ulps_eq!(py.tip_velocity(&q1, &-az), vx);
-        assert_ulps_eq!(pz.tip_velocity(&q1, &-ax), vy);
+        assert_ulps_eq!(px.rotation_based_velocity(&q1, &-ay), vz);
+        assert_ulps_eq!(py.rotation_based_velocity(&q1, &-az), vx);
+        assert_ulps_eq!(pz.rotation_based_velocity(&q1, &-ax), vy);
     }
 
     #[cfg(test)]
@@ -239,16 +269,39 @@ mod tip_velocity {
         use super::*;
 
         #[test]
-        #[allow(unused)]
         fn inline() {
+            let (qx, qy, qz) = quarter_rotations();
+            let (px, py, pz) = xyz_panels();
+            let (ax, ay, az) = xyz_angvel();
+            //let (vx, vy, vz) = xyz_linvel();
+
+            assert_ulps_eq!(px.rotation_based_velocity(&qy, &az), LinVel::ZERO);
+            assert_ulps_eq!(py.rotation_based_velocity(&qz, &ax), LinVel::ZERO);
+            assert_ulps_eq!(pz.rotation_based_velocity(&qx, &ay), LinVel::ZERO);
+        }
+
+        #[test]
+        fn perpendicular() {
             let (qx, qy, qz) = quarter_rotations();
             let (px, py, pz) = xyz_panels();
             let (ax, ay, az) = xyz_angvel();
             let (vx, vy, vz) = xyz_linvel();
 
-            assert_ulps_eq!(px.tip_velocity(&qy, &ax), vy);
-            assert_ulps_eq!(py.tip_velocity(&qz, &az), -vy);
-            assert_ulps_eq!(px.tip_velocity(&qy, &az), LinVel::ZERO);
+            assert_ulps_eq!(px.rotation_based_velocity(&qz, &ax), vz);
+            assert_ulps_eq!(py.rotation_based_velocity(&qx, &ay), vx);
+            assert_ulps_eq!(pz.rotation_based_velocity(&qy, &az), vy);
+        }
+
+        #[test]
+        fn perpendicular_inv() {
+            let (qx, qy, qz) = quarter_rotations();
+            let (px, py, pz) = xyz_panels();
+            let (ax, ay, az) = xyz_angvel();
+            let (vx, vy, vz) = xyz_linvel();
+
+            assert_ulps_eq!(px.rotation_based_velocity(&qz.inverse(), &ax), -vz);
+            assert_ulps_eq!(py.rotation_based_velocity(&qx.inverse(), &ay), -vx);
+            assert_ulps_eq!(pz.rotation_based_velocity(&qy.inverse(), &az), -vy);
         }
     }
 }
@@ -259,6 +312,7 @@ mod relative_velocity {
     use crate::velocity::AngVel;
     use approx::assert_ulps_eq;
     use std::f64::consts::PI;
+    use test_utils::*;
 
     #[test]
     fn stationary() {
@@ -266,7 +320,7 @@ mod relative_velocity {
         let rot = Quat::IDENTITY;
         let vel = Velocity::ZERO;
 
-        assert_ulps_eq!(panel.get_rel_vel(&rot, &vel), LinVel::ZERO);
+        assert_ulps_eq!(panel.tip_velocity(&rot, &vel), LinVel::ZERO);
     }
 
     #[test]
@@ -275,34 +329,91 @@ mod relative_velocity {
         let rot = Quat::from_rotation_x(PI / 2.);
         let vel = Velocity::ZERO;
 
-        assert_ulps_eq!(panel.get_rel_vel(&rot, &vel), LinVel::ZERO);
+        assert_ulps_eq!(panel.tip_velocity(&rot, &vel), LinVel::ZERO);
     }
 
     #[test]
     fn moving() {
-        let panel = Panel::new(Vec3::X, Vec3::Y, 1.0);
-        let rot = Quat::IDENTITY;
-        let vel = Velocity::new(LinVel::with_y(1.0), AngVel::ZERO);
+        let q = Quat::IDENTITY;
+        let (px, py, pz) = xyz_panels();
+        let (lx, ly, lz) = xyz_linvel();
+        let a = AngVel::ZERO;
 
-        assert_ulps_eq!(panel.get_rel_vel(&rot, &vel), LinVel::with_y(1.0));
+        assert_ulps_eq!(px.tip_velocity(&q, &Velocity::new(lx, a)), lx);
+        assert_ulps_eq!(py.tip_velocity(&q, &Velocity::new(ly, a)), ly);
+        assert_ulps_eq!(pz.tip_velocity(&q, &Velocity::new(lz, a)), lz);
+
+        assert_ulps_eq!(px.tip_velocity(&q, &Velocity::new(ly, a)), ly);
+        assert_ulps_eq!(py.tip_velocity(&q, &Velocity::new(lz, a)), lz);
+        assert_ulps_eq!(pz.tip_velocity(&q, &Velocity::new(lx, a)), lx);
+
+        assert_ulps_eq!(px.tip_velocity(&q, &Velocity::new(lz, a)), lz);
+        assert_ulps_eq!(py.tip_velocity(&q, &Velocity::new(lx, a)), lx);
+        assert_ulps_eq!(pz.tip_velocity(&q, &Velocity::new(ly, a)), ly);
     }
 
     #[test]
     fn rotated_moving() {
-        let panel = Panel::new(Vec3::X, Vec3::Y, 1.0);
-        let rot = Quat::from_rotation_z(PI / 2.);
-        let vel = Velocity::new(LinVel::with_y(1.0), AngVel::ZERO);
+        let (rx, ry, rz) = quarter_rotations();
+        let (px, py, pz) = xyz_panels();
+        let (lx, ly, lz) = xyz_linvel();
+        let a = AngVel::ZERO;
 
-        assert_ulps_eq!(panel.get_rel_vel(&rot, &vel), LinVel::with_x(-1.0));
+        assert_ulps_eq!(px.tip_velocity(&rx, &Velocity::new(lx, a)), lx);
+        assert_ulps_eq!(py.tip_velocity(&ry, &Velocity::new(ly, a)), ly);
+        assert_ulps_eq!(pz.tip_velocity(&rz, &Velocity::new(lz, a)), lz);
+
+        assert_ulps_eq!(px.tip_velocity(&ry, &Velocity::new(ly, a)), ly);
+        assert_ulps_eq!(py.tip_velocity(&rz, &Velocity::new(lz, a)), lz);
+        assert_ulps_eq!(pz.tip_velocity(&rx, &Velocity::new(lx, a)), lx);
+
+        assert_ulps_eq!(px.tip_velocity(&rz, &Velocity::new(lz, a)), lz);
+        assert_ulps_eq!(py.tip_velocity(&rx, &Velocity::new(lx, a)), lx);
+        assert_ulps_eq!(pz.tip_velocity(&ry, &Velocity::new(ly, a)), ly);
     }
 
     #[test]
-    fn rotating() {
-        let panel = Panel::new(Vec3::X, Vec3::Y, 1.0);
-        let rot = Quat::IDENTITY;
-        let vel = Velocity::new(LinVel::ZERO, AngVel::with_z(1.));
+    fn rotating_moving() {
+        let q = Quat::IDENTITY;
+        let (px, py, pz) = xyz_panels();
+        let (lx, ly, lz) = xyz_linvel();
+        let ((xx, xy, xz), (yx, yy, yz), (zx, zy, zz)) = all_vel();
 
-        assert_ulps_eq!(panel.get_rel_vel(&rot, &vel), LinVel::with_y(-1.0));
+        assert_ulps_eq!(px.tip_velocity(&q, &xx), lx);
+        assert_ulps_eq!(py.tip_velocity(&q, &xx), lx - lz);
+        assert_ulps_eq!(pz.tip_velocity(&q, &xx), lx + ly);
+
+        assert_ulps_eq!(px.tip_velocity(&q, &yx), ly);
+        assert_ulps_eq!(py.tip_velocity(&q, &yx), ly - lz);
+        assert_ulps_eq!(pz.tip_velocity(&q, &yx), ly + ly);
+
+        assert_ulps_eq!(px.tip_velocity(&q, &zx), lz);
+        assert_ulps_eq!(py.tip_velocity(&q, &zx), LinVel::ZERO);
+        assert_ulps_eq!(pz.tip_velocity(&q, &zx), lz + ly);
+
+        assert_ulps_eq!(px.tip_velocity(&q, &xy), lx + lz);
+        assert_ulps_eq!(py.tip_velocity(&q, &xy), lx);
+        assert_ulps_eq!(pz.tip_velocity(&q, &xy), LinVel::ZERO);
+
+        assert_ulps_eq!(px.tip_velocity(&q, &yy), ly + lz);
+        assert_ulps_eq!(py.tip_velocity(&q, &yy), ly);
+        assert_ulps_eq!(pz.tip_velocity(&q, &yy), ly - lx);
+
+        assert_ulps_eq!(px.tip_velocity(&q, &zy), lz + lz);
+        assert_ulps_eq!(py.tip_velocity(&q, &zy), lz);
+        assert_ulps_eq!(pz.tip_velocity(&q, &zy), lz - lx);
+
+        assert_ulps_eq!(px.tip_velocity(&q, &xz), lx - ly);
+        assert_ulps_eq!(py.tip_velocity(&q, &xz), lx + lx);
+        assert_ulps_eq!(pz.tip_velocity(&q, &xz), lx);
+
+        assert_ulps_eq!(px.tip_velocity(&q, &yz), LinVel::ZERO);
+        assert_ulps_eq!(py.tip_velocity(&q, &yz), ly + lx);
+        assert_ulps_eq!(pz.tip_velocity(&q, &yz), ly);
+
+        assert_ulps_eq!(px.tip_velocity(&q, &zz), lz - ly);
+        assert_ulps_eq!(py.tip_velocity(&q, &zz), lz + lx);
+        assert_ulps_eq!(pz.tip_velocity(&q, &zz), lz);
     }
 }
 
