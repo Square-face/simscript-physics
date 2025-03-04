@@ -1,3 +1,5 @@
+use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+use approx_derive::Approx;
 use glam::DVec3 as Vec3;
 use overload::overload;
 use std::{ops, time::Duration};
@@ -10,7 +12,7 @@ use crate::transform::Transform;
 mod angular_velocity;
 mod linear_velocity;
 
-#[derive(Debug, Default, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Approx)]
 pub struct Velocity {
     pub linear: LinVel,
     pub angular: AngVel,
@@ -111,17 +113,21 @@ mod arithmetic {
     use super::*;
     use approx::assert_ulps_eq;
 
-    #[cfg(test)]
     mod same_type {
         use super::*;
 
         #[test]
         fn add() {
-            let v1 = LinVel::splat(2.0);
-            let v2 = LinVel::with_x(-0.5);
+            let a = Vec3::new(12.73, 74.02, 59.29);
+            let b = Vec3::new(21.07, 7.92, 65.18);
+            let c = Vec3::new(-86.97, -70.44, 30.48);
+            let d = Vec3::new(-15.66, 69.47, 81.93);
 
-            assert_ulps_eq!(v1 + v2, LinVel::new(1.5, 2., 2.));
-            assert_ulps_eq!(v2 + v1, LinVel::new(1.5, 2., 2.));
+            let v1 = Velocity::from_vec3s(a, b);
+            let v2 = Velocity::from_vec3s(c, d);
+
+            assert_ulps_eq!(v1 + v2, Velocity::from_vec3s(a+c, b+d));
+            assert_ulps_eq!(v2 + v1, Velocity::from_vec3s(a+c, b+d));
         }
 
         #[test]
@@ -171,7 +177,7 @@ mod arithmetic {
         fn mul() {
             let v = LinVel::new(83.7, 47.1, 139.2);
             let t = Duration::from_secs_f64(5.);
-            assert_ulps_eq!(v * t, Transform::new(418.5, 235.5, 696.));
+            assert_ulps_eq!(v * t, crate::transform::Translation::new(418.5, 235.5, 696.));
         }
     }
 }

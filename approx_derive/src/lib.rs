@@ -38,7 +38,7 @@ fn impl_approx(ast: &syn::DeriveInput) -> proc_macro::TokenStream {
             let names = fields.named.iter().map(|n| n.ident.as_ref().unwrap());
             let abs_diff: Vec<TokenStream> = names
                 .clone()
-                .map(|name| quote! { self.#name.abs_diff_eq(other.#name, epsilon) })
+                .map(|name| quote! { self.#name.abs_diff_eq(&other.#name, epsilon) })
                 .collect();
             let rel_eq: Vec<TokenStream> = names
                 .clone()

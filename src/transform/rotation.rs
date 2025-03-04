@@ -19,21 +19,22 @@ impl Rotation {
     }
 }
 
-overload!((a: ?Rotation) + (b: ?Rotation) -> Rotation{ Rotation( a.0 * b.0 ) });
-overload!((a: ?Rotation) - (b: ?Rotation) -> Rotation{ Rotation( a.0 * (-b).0) });
-overload!((a: &mut Rotation) += (b: ?Rotation) { a.0 *= b.0 });
-overload!((a: &mut Rotation) -= (b: ?Rotation) { a.0 *= (-b).0 });
+overload!((a: ?Rotation) + (b: ?Rotation) -> Rotation{ Rotation( b.0 * a.0 ) });
+overload!((a: ?Rotation) - (b: ?Rotation) -> Rotation{ Rotation( b.0.inverse() * a.0) });
+overload!((a: &mut Rotation) += (b: ?Rotation) { a.0 = b.0 * a.0 });
+overload!((a: &mut Rotation) -= (b: ?Rotation) { a.0 = b.0.inverse() * a.0});
 
 overload!(-(a: ?Rotation) -> Rotation{ Rotation(a.0.inverse()) });
 
 #[cfg(test)]
 mod constructors {
+    use std::f64::consts::PI;
+
     use super::*;
-    use glam::DQuat as Quat;
 
     #[test]
     fn test_new() {
-        let q = Quat::IDENTITY;
+        let q = Quat::from_rotation_z(PI / 5.);
         let rotation = Rotation::new(q);
         assert_eq!(rotation.0, q);
     }
@@ -48,31 +49,62 @@ mod constructors {
 mod aritmetic {
     use super::*;
     use approx::assert_ulps_eq;
-    use glam::DQuat as Quat;
 
     #[test]
-    fn test_negation() {
-        let q = Quat::from_rotation_x(1.0);
-        let rotation = Rotation::new(q);
+    fn neg() {
+        let a = Quat::from_rotation_x(1.0);
+        let b = Quat::from_rotation_x(-1.0);
+        let r = Rotation::new(a);
 
-        // The inverse of a quaternion should undo its effect
-        assert_ulps_eq!(-rotation.0, -q);
+        assert_ulps_eq!((-r).0, b);
     }
 
     #[test]
-    fn test_addition() {
-        let a = Rotation::new(Quat::from_rotation_x(0.5));
+    fn add() {
+        let a = Quat::from_rotation_x(-5.25);
+        let b = Quat::from_rotation_y(6.24);
+        let c = Quat::from_rotation_z(-9.18);
 
-        // Multiplication order matters for quaternions
-        assert_ulps_eq!((a + a).0, Quat::from_rotation_x(1.0));
+        let r1 = Rotation::new(a);
+        let r2 = Rotation::new(b);
+        let r3 = Rotation::new(c);
+
+        assert_ulps_eq!((r1 + r1).0, Quat::from_rotation_x(-10.5));
+        assert_ulps_eq!((r2 + r2).0, Quat::from_rotation_y(12.48));
+        assert_ulps_eq!((r3 + r3).0, Quat::from_rotation_z(-18.36));
+
+        assert_ulps_eq!((r1 + r2).0, b * a);
+        assert_ulps_eq!((r1 + r3).0, c * a);
+
+        assert_ulps_eq!((r2 + r1).0, a * b);
+        assert_ulps_eq!((r2 + r3).0, c * b);
+
+        assert_ulps_eq!((r3 + r1).0, a * c);
+        assert_ulps_eq!((r3 + r2).0, b * c);
     }
 
     #[test]
-    fn test_subtraction() {
-        let a = Rotation::new(Quat::from_rotation_y(0.2));
+    fn sub() {
+        let a = Quat::from_rotation_x(-5.53);
+        let b = Quat::from_rotation_y(0.31);
+        let c = Quat::from_rotation_z(1.06);
 
-        // Multiplication order matters for quaternions
-        assert_ulps_eq!((a - a).0, Quat::IDENTITY);
+        let r1 = Rotation::new(a);
+        let r2 = Rotation::new(b);
+        let r3 = Rotation::new(c);
+
+        assert_ulps_eq!((r1 - r1).0, Quat::IDENTITY);
+        assert_ulps_eq!((r2 - r2).0, Quat::IDENTITY);
+        assert_ulps_eq!((r3 - r3).0, Quat::IDENTITY);
+
+        assert_ulps_eq!((r1 - r2).0, b.inverse() * a);
+        assert_ulps_eq!((r1 - r3).0, c.inverse() * a);
+
+        assert_ulps_eq!((r2 - r1).0, a.inverse() * b);
+        assert_ulps_eq!((r2 - r3).0, c.inverse() * b);
+
+        assert_ulps_eq!((r3 - r1).0, a.inverse() * c);
+        assert_ulps_eq!((r3 - r2).0, b.inverse() * c);
     }
 }
 
@@ -84,8 +116,8 @@ mod assign_arithmetic {
 
     #[test]
     fn test_addassign() {
-        let q1 = Quat::from_rotation_x(0.5);
-        let q2 = Quat::from_rotation_y(0.5);
+        let q1 = Quat::from_rotation_x(44.41);
+        let q2 = Quat::from_rotation_y(94.24);
         let mut a = Rotation::new(q1);
         let b = Rotation::new(q2);
 
@@ -103,7 +135,7 @@ mod assign_arithmetic {
 
         a -= b;
 
-        assert_ulps_eq!(a.0, q1 * (-b).0);
+        assert_ulps_eq!(a.0, b.0.inverse() * q1);
     }
 }
 
@@ -139,7 +171,7 @@ mod rotating_vectors {
     #[test]
     fn unit() {
         let v = DVec3::new(1.0, 0.0, 0.0);
-        let r = Rotation::new(Quat::from_rotation_z(PI/2.));
-        assert_ulps_eq!(r.0*v, DVec3::new(0.0, 1.0, 0.0));
+        let r = Rotation::new(Quat::from_rotation_z(PI / 2.));
+        assert_ulps_eq!(r.0 * v, DVec3::new(0.0, 1.0, 0.0));
     }
 }
