@@ -1,12 +1,12 @@
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use approx_derive::Approx;
-use glam::{DQuat as Quat, DVec3 as Vec3, EulerRot};
+use glam::{DQuat as Quat, DVec3 as Vec3};
 use overload::overload;
 use std::{ops, time::Duration};
 
 use crate::transform::Rotation;
 
-#[derive(Debug, Clone, Copy, PartialEq, Approx)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Approx)]
 pub struct AngVel(pub Vec3);
 
 impl AngVel {

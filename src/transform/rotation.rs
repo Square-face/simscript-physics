@@ -91,7 +91,7 @@ mod assign_arithmetic {
 
         a += b;
 
-        assert_ulps_eq!(a.0, q1 * q2);
+        assert_ulps_eq!(a.0, q2 * q1);
     }
 
     #[test]
