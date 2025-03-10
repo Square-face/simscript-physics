@@ -1,4 +1,4 @@
-use glam::{DQuat as Quat, DVec3 as Vec3, Vec3Swizzles};
+use glam::{DQuat as Quat, DVec3 as Vec3};
 
 use crate::{
     moments::{Force, Moment},
@@ -40,7 +40,7 @@ impl Panel {
     }
 
     pub fn rotation_based_velocity(&self, rot: &Quat, vel: &AngVel) -> LinVel {
-        LinVel(vel.0.xzy().cross(self.rotated(rot).offset.xzy()).xzy())
+        LinVel(vel.0.cross(self.rotated(rot).offset))
     }
 
     pub fn tip_velocity(&self, rot: &Quat, vel: &Velocity) -> LinVel {
@@ -54,7 +54,9 @@ impl Panel {
         let vel = state.momentum / state.mass;
         let vel = self.tip_velocity(&rot, &vel);
 
-        let force = Force::new(rot.mul_vec3(self.to_force(&vel).0));
+        dbg!(&vel);
+
+        let force = dbg!(Force::new(rot.mul_vec3(dbg!(self.to_force(&vel)).0)));
 
         Moment::new(rot.mul_vec3(self.offset), force.0)
     }
@@ -62,8 +64,13 @@ impl Panel {
 
 #[cfg(test)]
 mod test_utils {
+
+    use crate::inertia_mass::{Inertia, InnertiaMass, Mass};
+
     use super::*;
     use std::f64::consts::PI;
+
+    pub const EXP: f64 = DENSITY * HALF_C_D;
 
     pub fn quarter_rotations() -> (Quat, Quat, Quat) {
         (
@@ -102,6 +109,14 @@ mod test_utils {
             LinVel::with_x(1.0),
             LinVel::with_y(1.0),
             LinVel::with_z(1.0),
+        )
+    }
+
+    pub fn cyl_xyz() -> (InnertiaMass, InnertiaMass, InnertiaMass) {
+        (
+            InnertiaMass::new(Mass::new(1.), Inertia::cylinder_x(1., 1., 1.)),
+            InnertiaMass::new(Mass::new(1.), Inertia::cylinder_y(1., 1., 1.)),
+            InnertiaMass::new(Mass::new(1.), Inertia::cylinder_z(1., 1., 1.)),
         )
     }
 
@@ -220,9 +235,9 @@ mod rotation_based_velocity {
         let (ax, ay, az) = xyz_angvel();
         let (vx, vy, vz) = xyz_linvel();
 
-        assert_ulps_eq!(px.rotation_based_velocity(&q1, &ay), vz);
-        assert_ulps_eq!(py.rotation_based_velocity(&q1, &az), vx);
-        assert_ulps_eq!(pz.rotation_based_velocity(&q1, &ax), vy);
+        assert_ulps_eq!(px.rotation_based_velocity(&q1, &ay), -vz);
+        assert_ulps_eq!(py.rotation_based_velocity(&q1, &az), -vx);
+        assert_ulps_eq!(pz.rotation_based_velocity(&q1, &ax), -vy);
     }
 
     #[test]
@@ -233,9 +248,9 @@ mod rotation_based_velocity {
         let (ax, ay, az) = xyz_angvel();
         let (vx, vy, vz) = xyz_linvel();
 
-        assert_ulps_eq!(px.rotation_based_velocity(&q1, &ay), -vz);
-        assert_ulps_eq!(py.rotation_based_velocity(&q1, &az), -vx);
-        assert_ulps_eq!(pz.rotation_based_velocity(&q1, &ax), -vy);
+        assert_ulps_eq!(px.rotation_based_velocity(&q1, &ay), vz);
+        assert_ulps_eq!(py.rotation_based_velocity(&q1, &az), vx);
+        assert_ulps_eq!(pz.rotation_based_velocity(&q1, &ax), vy);
     }
 
     #[test]
@@ -246,9 +261,9 @@ mod rotation_based_velocity {
         let (ax, ay, az) = xyz_angvel();
         let (vx, vy, vz) = xyz_linvel();
 
-        assert_ulps_eq!(px.rotation_based_velocity(&q1, &-ay), -vz);
-        assert_ulps_eq!(py.rotation_based_velocity(&q1, &-az), -vx);
-        assert_ulps_eq!(pz.rotation_based_velocity(&q1, &-ax), -vy);
+        assert_ulps_eq!(px.rotation_based_velocity(&q1, &-ay), vz);
+        assert_ulps_eq!(py.rotation_based_velocity(&q1, &-az), vx);
+        assert_ulps_eq!(pz.rotation_based_velocity(&q1, &-ax), vy);
     }
 
     #[test]
@@ -259,9 +274,9 @@ mod rotation_based_velocity {
         let (ax, ay, az) = xyz_angvel();
         let (vx, vy, vz) = xyz_linvel();
 
-        assert_ulps_eq!(px.rotation_based_velocity(&q1, &-ay), vz);
-        assert_ulps_eq!(py.rotation_based_velocity(&q1, &-az), vx);
-        assert_ulps_eq!(pz.rotation_based_velocity(&q1, &-ax), vy);
+        assert_ulps_eq!(px.rotation_based_velocity(&q1, &-ay), -vz);
+        assert_ulps_eq!(py.rotation_based_velocity(&q1, &-az), -vx);
+        assert_ulps_eq!(pz.rotation_based_velocity(&q1, &-ax), -vy);
     }
 
     #[cfg(test)]
@@ -287,9 +302,9 @@ mod rotation_based_velocity {
             let (ax, ay, az) = xyz_angvel();
             let (vx, vy, vz) = xyz_linvel();
 
-            assert_ulps_eq!(px.rotation_based_velocity(&qz, &ax), vz);
-            assert_ulps_eq!(py.rotation_based_velocity(&qx, &ay), vx);
-            assert_ulps_eq!(pz.rotation_based_velocity(&qy, &az), vy);
+            assert_ulps_eq!(px.rotation_based_velocity(&qz, &ax), -vz);
+            assert_ulps_eq!(py.rotation_based_velocity(&qx, &ay), -vx);
+            assert_ulps_eq!(pz.rotation_based_velocity(&qy, &az), -vy);
         }
 
         #[test]
@@ -299,9 +314,9 @@ mod rotation_based_velocity {
             let (ax, ay, az) = xyz_angvel();
             let (vx, vy, vz) = xyz_linvel();
 
-            assert_ulps_eq!(px.rotation_based_velocity(&qz.inverse(), &ax), -vz);
-            assert_ulps_eq!(py.rotation_based_velocity(&qx.inverse(), &ay), -vx);
-            assert_ulps_eq!(pz.rotation_based_velocity(&qy.inverse(), &az), -vy);
+            assert_ulps_eq!(px.rotation_based_velocity(&qz.inverse(), &ax), vz);
+            assert_ulps_eq!(py.rotation_based_velocity(&qx.inverse(), &ay), vx);
+            assert_ulps_eq!(pz.rotation_based_velocity(&qy.inverse(), &az), vy);
         }
     }
 }
@@ -333,7 +348,7 @@ mod relative_velocity {
     }
 
     #[test]
-    fn moving() {
+    fn no_rotation_moving() {
         let q = Quat::IDENTITY;
         let (px, py, pz) = xyz_panels();
         let (lx, ly, lz) = xyz_linvel();
@@ -380,39 +395,39 @@ mod relative_velocity {
         let ((xx, xy, xz), (yx, yy, yz), (zx, zy, zz)) = all_vel();
 
         assert_ulps_eq!(px.tip_velocity(&q, &xx), lx);
-        assert_ulps_eq!(py.tip_velocity(&q, &xx), lx - lz);
-        assert_ulps_eq!(pz.tip_velocity(&q, &xx), lx + ly);
+        assert_ulps_eq!(py.tip_velocity(&q, &xx), lx + lz);
+        assert_ulps_eq!(pz.tip_velocity(&q, &xx), lx - ly);
 
         assert_ulps_eq!(px.tip_velocity(&q, &yx), ly);
-        assert_ulps_eq!(py.tip_velocity(&q, &yx), ly - lz);
-        assert_ulps_eq!(pz.tip_velocity(&q, &yx), ly + ly);
+        assert_ulps_eq!(py.tip_velocity(&q, &yx), ly + lz);
+        assert_ulps_eq!(pz.tip_velocity(&q, &yx), ly - ly);
 
         assert_ulps_eq!(px.tip_velocity(&q, &zx), lz);
-        assert_ulps_eq!(py.tip_velocity(&q, &zx), LinVel::ZERO);
-        assert_ulps_eq!(pz.tip_velocity(&q, &zx), lz + ly);
+        assert_ulps_eq!(py.tip_velocity(&q, &zx), lz + lz);
+        assert_ulps_eq!(pz.tip_velocity(&q, &zx), lz - ly);
 
-        assert_ulps_eq!(px.tip_velocity(&q, &xy), lx + lz);
+        assert_ulps_eq!(px.tip_velocity(&q, &xy), lx - lz);
         assert_ulps_eq!(py.tip_velocity(&q, &xy), lx);
-        assert_ulps_eq!(pz.tip_velocity(&q, &xy), LinVel::ZERO);
+        assert_ulps_eq!(pz.tip_velocity(&q, &xy), lx + lx);
 
-        assert_ulps_eq!(px.tip_velocity(&q, &yy), ly + lz);
+        assert_ulps_eq!(px.tip_velocity(&q, &yy), ly - lz);
         assert_ulps_eq!(py.tip_velocity(&q, &yy), ly);
-        assert_ulps_eq!(pz.tip_velocity(&q, &yy), ly - lx);
+        assert_ulps_eq!(pz.tip_velocity(&q, &yy), ly + lx);
 
-        assert_ulps_eq!(px.tip_velocity(&q, &zy), lz + lz);
+        assert_ulps_eq!(px.tip_velocity(&q, &zy), lz - lz);
         assert_ulps_eq!(py.tip_velocity(&q, &zy), lz);
-        assert_ulps_eq!(pz.tip_velocity(&q, &zy), lz - lx);
+        assert_ulps_eq!(pz.tip_velocity(&q, &zy), lz + lx);
 
-        assert_ulps_eq!(px.tip_velocity(&q, &xz), lx - ly);
-        assert_ulps_eq!(py.tip_velocity(&q, &xz), lx + lx);
+        assert_ulps_eq!(px.tip_velocity(&q, &xz), lx + ly);
+        assert_ulps_eq!(py.tip_velocity(&q, &xz), lx - lx);
         assert_ulps_eq!(pz.tip_velocity(&q, &xz), lx);
 
-        assert_ulps_eq!(px.tip_velocity(&q, &yz), LinVel::ZERO);
-        assert_ulps_eq!(py.tip_velocity(&q, &yz), ly + lx);
+        assert_ulps_eq!(px.tip_velocity(&q, &yz), ly + ly);
+        assert_ulps_eq!(py.tip_velocity(&q, &yz), ly - lx);
         assert_ulps_eq!(pz.tip_velocity(&q, &yz), ly);
 
-        assert_ulps_eq!(px.tip_velocity(&q, &zz), lz - ly);
-        assert_ulps_eq!(py.tip_velocity(&q, &zz), lz + lx);
+        assert_ulps_eq!(px.tip_velocity(&q, &zz), lz + ly);
+        assert_ulps_eq!(py.tip_velocity(&q, &zz), lz - lx);
         assert_ulps_eq!(pz.tip_velocity(&q, &zz), lz);
     }
 }
@@ -423,8 +438,7 @@ mod to_force {
 
     use super::*;
     use approx::assert_ulps_eq;
-
-    const EXP: f64 = DENSITY * HALF_C_D;
+    use test_utils::*;
 
     #[test]
     fn stationary() {
@@ -437,8 +451,8 @@ mod to_force {
     fn parallel() {
         let p1 = Panel::new(Vec3::ZERO, Vec3::Y, 1.);
 
-        let v1 = LinVel::with_z(1.);
-        let v2 = LinVel::with_x(1.);
+        let v1 = LinVel::Z;
+        let v2 = LinVel::X;
 
         assert_ulps_eq!(p1.to_force(&v1), Force::ZERO);
         assert_ulps_eq!(p1.to_force(&v2), Force::ZERO);
@@ -450,18 +464,16 @@ mod to_force {
         let p2 = Panel::new(Vec3::ZERO, Vec3::Y, 1.);
         let p3 = Panel::new(Vec3::ZERO, Vec3::Z, 1.);
 
-        let v1 = LinVel::with_x(1.);
-        let v2 = LinVel::with_y(1.);
-        let v3 = LinVel::with_z(1.);
+        let (lx, ly, lz) = xyz_linvel();
 
-        assert_ulps_eq!(p1.to_force(&v1), Force::new(Vec3::NEG_X * EXP));
-        assert_ulps_eq!(p2.to_force(&v2), Force::new(Vec3::NEG_Y * EXP));
-        assert_ulps_eq!(p3.to_force(&v3), Force::new(Vec3::NEG_Z * EXP));
+        assert_ulps_eq!(p1.to_force(&lx), Force::new(Vec3::NEG_X * EXP));
+        assert_ulps_eq!(p2.to_force(&ly), Force::new(Vec3::NEG_Y * EXP));
+        assert_ulps_eq!(p3.to_force(&lz), Force::new(Vec3::NEG_Z * EXP));
     }
 
     #[test]
     fn inline_offset() {
-        let v1 = LinVel::with_y(1.);
+        let v1 = LinVel::Y;
 
         let p1 = Panel::new(Vec3::Y, Vec3::Y, 1.);
         let p2 = Panel::new(Vec3::X, Vec3::Y, 1.);
@@ -478,7 +490,7 @@ mod to_force {
 
         let p1 = Panel::new(Vec3::ZERO, Vec3::new(1., 1., 0.).normalize(), 1.);
 
-        let v1 = LinVel::with_x(1.);
+        let v1 = LinVel::X;
 
         assert_ulps_eq!(p1.to_force(&v1), Force::new(Vec3::NEG_X * exp));
     }
@@ -487,55 +499,44 @@ mod to_force {
 #[cfg(test)]
 mod to_moment {
     use super::*;
-    use crate::{
-        inertia_mass::{Inertia, InnertiaMass, Mass},
-        momentum::Momentum,
-        transform::Transform,
-    };
+    use test_utils::*;
+
+    use crate::{momentum::Momentum, transform::Transform};
     use approx::assert_ulps_eq;
-
-    const EXP: f64 = DENSITY * HALF_C_D;
-
-    fn mass_x() -> InnertiaMass {
-        InnertiaMass::new(Mass::new(1.), Inertia::cylinder_x(1., 1., 1.))
-    }
-    fn mass_y() -> InnertiaMass {
-        InnertiaMass::new(Mass::new(1.), Inertia::cylinder_y(1., 1., 1.))
-    }
-    fn mass_z() -> InnertiaMass {
-        InnertiaMass::new(Mass::new(1.), Inertia::cylinder_z(1., 1., 1.))
-    }
 
     #[test]
     fn stationary() {
-        let p1 = Panel::new(Vec3::ZERO, Vec3::X, 1.);
+        let px = Panel::new(Vec3::ZERO, Vec3::X, 1.);
+        let (cx, _, _) = cyl_xyz();
 
-        let s1 = State::new(mass_x(), Transform::ZERO, Momentum::ZERO);
+        let s1 = State::new(cx, Transform::ZERO, Momentum::ZERO);
 
-        assert_ulps_eq!(p1.to_moment(&s1), Moment::ZERO);
+        assert_ulps_eq!(px.to_moment(&s1), Moment::ZERO);
     }
 
     #[test]
     fn linear_movement() {
-        let p1 = Panel::new(Vec3::ZERO, Vec3::X, 1.);
-        let p2 = Panel::new(Vec3::ZERO, Vec3::Y, 1.);
-        let p3 = Panel::new(Vec3::ZERO, Vec3::Z, 1.);
+        let px = Panel::new(Vec3::ZERO, Vec3::X, 1.);
+        let py = Panel::new(Vec3::ZERO, Vec3::Y, 1.);
+        let pz = Panel::new(Vec3::ZERO, Vec3::Z, 1.);
 
-        let s1 = State::new(mass_x(), Transform::ZERO, Momentum::from_lin(Vec3::X));
-        let s2 = State::new(mass_y(), Transform::ZERO, Momentum::from_lin(Vec3::Y));
-        let s3 = State::new(mass_z(), Transform::ZERO, Momentum::from_lin(Vec3::Z));
+        let (cx, cy, cz) = cyl_xyz();
 
-        assert_ulps_eq!(p1.to_moment(&s1), Moment::from_force(Vec3::NEG_X * EXP));
-        assert_ulps_eq!(p1.to_moment(&s2), Moment::ZERO);
-        assert_ulps_eq!(p1.to_moment(&s3), Moment::ZERO);
+        let sx = State::new(cx, Transform::ZERO, Momentum::from_lin(Vec3::X));
+        let sy = State::new(cy, Transform::ZERO, Momentum::from_lin(Vec3::Y));
+        let sz = State::new(cz, Transform::ZERO, Momentum::from_lin(Vec3::Z));
 
-        assert_ulps_eq!(p2.to_moment(&s1), Moment::ZERO);
-        assert_ulps_eq!(p2.to_moment(&s2), Moment::from_force(Vec3::NEG_Y * EXP));
-        assert_ulps_eq!(p2.to_moment(&s3), Moment::ZERO);
+        assert_ulps_eq!(px.to_moment(&sx), Moment::from_force(Vec3::NEG_X * EXP));
+        assert_ulps_eq!(px.to_moment(&sy), Moment::ZERO);
+        assert_ulps_eq!(px.to_moment(&sz), Moment::ZERO);
 
-        assert_ulps_eq!(p3.to_moment(&s1), Moment::ZERO);
-        assert_ulps_eq!(p3.to_moment(&s2), Moment::ZERO);
-        assert_ulps_eq!(p3.to_moment(&s3), Moment::from_force(Vec3::NEG_Z * EXP));
+        assert_ulps_eq!(py.to_moment(&sx), Moment::ZERO);
+        assert_ulps_eq!(py.to_moment(&sy), Moment::from_force(Vec3::NEG_Y * EXP));
+        assert_ulps_eq!(py.to_moment(&sz), Moment::ZERO);
+
+        assert_ulps_eq!(pz.to_moment(&sx), Moment::ZERO);
+        assert_ulps_eq!(pz.to_moment(&sy), Moment::ZERO);
+        assert_ulps_eq!(pz.to_moment(&sz), Moment::from_force(Vec3::NEG_Z * EXP));
     }
 
     #[test]
@@ -544,21 +545,23 @@ mod to_moment {
         let pyz = Panel::new(Vec3::Y, Vec3::Z, 1.);
         let pzx = Panel::new(Vec3::Z, Vec3::X, 1.);
 
-        // momentum /2 because inertia is a bit weird
-        let sx = State::new(mass_x(), Transform::ZERO, Momentum::from_ang(Vec3::X / 2.));
-        let sy = State::new(mass_y(), Transform::ZERO, Momentum::from_ang(Vec3::Y / 2.));
-        let sz = State::new(mass_z(), Transform::ZERO, Momentum::from_ang(Vec3::Z / 2.));
+        let (cx, cy, cz) = cyl_xyz();
+
+        // Momentum /2 because inertia is a bit weird
+        let sx = State::new(cx, Transform::ZERO, Momentum::from_ang(Vec3::X / 2.));
+        let sy = State::new(cy, Transform::ZERO, Momentum::from_ang(Vec3::Y / 2.));
+        let sz = State::new(cz, Transform::ZERO, Momentum::from_ang(Vec3::Z / 2.));
 
         assert_ulps_eq!(pxy.to_moment(&sx).magnitude(), 0.);
         assert_ulps_eq!(pxy.to_moment(&sy).magnitude(), 0.);
-        assert_ulps_eq!(pxy.to_moment(&sz), Moment::new(Vec3::X, Vec3::Y * EXP));
+        assert_ulps_eq!(pxy.to_moment(&sz), Moment::new(Vec3::X, Vec3::NEG_Y * EXP));
 
-        assert_ulps_eq!(pyz.to_moment(&sx), Moment::new(Vec3::Y, Vec3::Z * EXP));
+        assert_ulps_eq!(pyz.to_moment(&sx), Moment::new(Vec3::Y, Vec3::NEG_Z * EXP));
         assert_ulps_eq!(pyz.to_moment(&sy).magnitude(), 0.);
         assert_ulps_eq!(pyz.to_moment(&sz).magnitude(), 0.);
 
         assert_ulps_eq!(pzx.to_moment(&sx).magnitude(), 0.);
-        assert_ulps_eq!(pzx.to_moment(&sy), Moment::new(Vec3::Z, Vec3::X * EXP));
+        assert_ulps_eq!(pzx.to_moment(&sy), Moment::new(Vec3::Z, Vec3::NEG_X * EXP));
         assert_ulps_eq!(pzx.to_moment(&sz).magnitude(), 0.);
     }
 }
