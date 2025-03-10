@@ -27,9 +27,8 @@ impl Panel {
 
     pub fn to_force(&self, rel_vel: &LinVel) -> Force {
         let area = self.normal.dot(rel_vel.0.normalize_or_zero()) * self.area;
-        let v_sq = rel_vel.0 * rel_vel.0;
 
-        Force::new(DENSITY * -v_sq * HALF_C_D * area)
+        Force::new(DENSITY * rel_vel.0.length_squared() * HALF_C_D * area * -self.normal)
     }
 
     pub fn rotated(&self, rot: &Quat) -> Self {
@@ -54,9 +53,7 @@ impl Panel {
         let vel = state.momentum / state.mass;
         let vel = self.tip_velocity(&rot, &vel);
 
-        dbg!(&vel);
-
-        let force = dbg!(Force::new(rot.mul_vec3(dbg!(self.to_force(&vel)).0)));
+        let force = Force::new(rot.mul_vec3(self.to_force(&vel).0));
 
         Moment::new(rot.mul_vec3(self.offset), force.0)
     }
@@ -492,7 +489,7 @@ mod to_force {
 
         let v1 = LinVel::X;
 
-        assert_ulps_eq!(p1.to_force(&v1), Force::new(Vec3::NEG_X * exp));
+        assert_ulps_eq!(p1.to_force(&v1), Force::new(Vec3::new(-1., -1., 0.).normalize() * exp));
     }
 }
 
