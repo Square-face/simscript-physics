@@ -42,8 +42,8 @@ impl Panel {
         LinVel(vel.0.cross(self.offset))
     }
 
-    pub fn tip_velocity(&self, rot: &Quat, vel: &Velocity) -> LinVel {
-        let linear = rot.mul_vec3(vel.linear.0);
+    pub fn tip_velocity(&self, vel: &Velocity) -> LinVel {
+        let linear = vel.linear.0;
         let angular = self.rotation_based_velocity(&vel.angular);
         LinVel(linear) + angular
     }
@@ -52,7 +52,7 @@ impl Panel {
         let rot = state.transform.rotation.0;
         let vel = state.momentum / state.mass;
         let rotated = self.rotated(&rot);
-        let vel = rotated.tip_velocity(&rot, &vel);
+        let vel = rotated.tip_velocity(&vel);
 
         let force = rotated.to_force(&vel);
 
