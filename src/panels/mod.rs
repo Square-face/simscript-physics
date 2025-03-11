@@ -39,7 +39,7 @@ impl Panel {
     }
 
     pub fn rotation_based_velocity(&self, rot: &Quat, vel: &AngVel) -> LinVel {
-        LinVel(self.rotated(rot).offset.cross(vel.0))
+        LinVel(vel.0.cross(self.rotated(rot).offset))
     }
 
     pub fn tip_velocity(&self, rot: &Quat, vel: &Velocity) -> LinVel {
