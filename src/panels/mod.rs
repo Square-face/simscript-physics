@@ -54,7 +54,7 @@ impl Panel {
         let rotated = self.rotated(&rot);
         let vel = rotated.tip_velocity(&rot, &vel);
 
-        let force = Force::new(rot.inverse().mul_vec3(rotated.to_force(&vel).0));
+        let force = Force::new(rot.mul_vec3(self.to_force(&vel).0));
 
         Moment::new(rot.mul_vec3(self.offset), force.0)
     }
