@@ -47,6 +47,6 @@ overload!((a: ?Momentum) / (b: f64) -> Momentum{Momentum{ linear: a.linear / b, 
 overload!((a: &mut Momentum) *= (b: f64) { a.linear *= b; a.rotation *= b; });
 overload!((a: &mut Momentum) /= (b: f64) { a.linear /= b; a.rotation /= b; });
 
-overload!((a: ?Momentum) / (b: ?InnertiaMass) -> Velocity{ Velocity::new(a.linear / b.mass, a.rotation / b.inv_inertia.0) });
+overload!((a: ?Momentum) / (b: ?InnertiaMass) -> Velocity{ Velocity::new(a.linear / b.mass, a.rotation / b.inv_inertia) });
 
 overload!(-(a: ?Momentum) -> Momentum{Momentum{ linear: -a.linear, rotation: -a.rotation }});
