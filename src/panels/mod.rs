@@ -38,22 +38,23 @@ impl Panel {
         Self::new(offset, normal, self.area)
     }
 
-    pub fn rotation_based_velocity(&self, rot: &Quat, vel: &AngVel) -> LinVel {
-        LinVel(vel.0.cross(self.rotated(rot).offset))
+    pub fn rotation_based_velocity(&self, vel: &AngVel) -> LinVel {
+        LinVel(vel.0.cross(self.offset))
     }
 
     pub fn tip_velocity(&self, rot: &Quat, vel: &Velocity) -> LinVel {
         let linear = rot.mul_vec3(vel.linear.0);
-        let angular = self.rotation_based_velocity(rot, &vel.angular);
+        let angular = self.rotation_based_velocity(&vel.angular);
         LinVel(linear) + angular
     }
 
     pub fn to_moment(&self, state: &State) -> Moment {
         let rot = state.transform.rotation.0;
         let vel = state.momentum / state.mass;
-        let vel = self.tip_velocity(&rot, &vel);
+        let rotated = self.rotated(&rot);
+        let vel = rotated.tip_velocity(&rot, &vel);
 
-        let force = Force::new(rot.mul_vec3(self.to_force(&vel).0));
+        let force = Force::new(rot.inverse().mul_vec3(rotated.to_force(&vel).0));
 
         Moment::new(rot.mul_vec3(self.offset), force.0)
     }
