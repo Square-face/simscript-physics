@@ -32,8 +32,8 @@ impl Panel {
     }
 
     pub fn rotated(&self, rot: &Quat) -> Self {
-        let offset = rot.inverse().mul_vec3(self.offset);
-        let normal = rot.inverse().mul_vec3(self.normal);
+        let offset = rot.mul_vec3(self.offset);
+        let normal = rot.mul_vec3(self.normal);
 
         Self::new(offset, normal, self.area)
     }
