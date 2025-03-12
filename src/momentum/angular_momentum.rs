@@ -1,9 +1,11 @@
-
 use glam::{DMat3, DVec3 as Vec3};
 use overload::overload;
 use std::ops;
 
-use crate::{inertia_mass::{Inertia, InnertiaMass}, velocity::AngVel};
+use crate::{
+    inertia_mass::{Inertia, InnertiaMass},
+    velocity::AngVel,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct AngMom(pub Vec3);

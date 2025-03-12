@@ -1,7 +1,7 @@
-pub use rotation::Rotation;
-pub use translation::Translation;
 use overload::overload;
+pub use rotation::Rotation;
 use std::ops;
+pub use translation::Translation;
 
 mod rotation;
 mod translation;

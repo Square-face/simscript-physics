@@ -490,7 +490,10 @@ mod to_force {
 
         let v1 = LinVel::X;
 
-        assert_ulps_eq!(p1.to_force(&v1), Force::new(Vec3::new(-1., -1., 0.).normalize() * exp));
+        assert_ulps_eq!(
+            p1.to_force(&v1),
+            Force::new(Vec3::new(-1., -1., 0.).normalize() * exp)
+        );
     }
 }
 

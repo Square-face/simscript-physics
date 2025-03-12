@@ -7,9 +7,9 @@ use transform::Transform;
 pub mod inertia_mass;
 pub mod moments;
 pub mod momentum;
+pub mod panels;
 pub mod transform;
 pub mod velocity;
-pub mod panels;
 
 /// Represents the kinetic state of a simulated entity
 #[derive(Debug, Clone, Copy, PartialEq)]

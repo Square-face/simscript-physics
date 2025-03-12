@@ -86,7 +86,6 @@ impl Inertia {
         ]))
     }
 
-
     pub fn rotated(&self, rot: Quat) -> Self {
         self.rot_mat(Mat3::from_quat(rot))
     }

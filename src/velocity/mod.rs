@@ -126,8 +126,8 @@ mod arithmetic {
             let v1 = Velocity::from_vec3s(a, b);
             let v2 = Velocity::from_vec3s(c, d);
 
-            assert_ulps_eq!(v1 + v2, Velocity::from_vec3s(a+c, b+d));
-            assert_ulps_eq!(v2 + v1, Velocity::from_vec3s(a+c, b+d));
+            assert_ulps_eq!(v1 + v2, Velocity::from_vec3s(a + c, b + d));
+            assert_ulps_eq!(v2 + v1, Velocity::from_vec3s(a + c, b + d));
         }
 
         #[test]
@@ -177,7 +177,10 @@ mod arithmetic {
         fn mul() {
             let v = LinVel::new(83.7, 47.1, 139.2);
             let t = Duration::from_secs_f64(5.);
-            assert_ulps_eq!(v * t, crate::transform::Translation::new(418.5, 235.5, 696.));
+            assert_ulps_eq!(
+                v * t,
+                crate::transform::Translation::new(418.5, 235.5, 696.)
+            );
         }
     }
 }

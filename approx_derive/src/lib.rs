@@ -2,13 +2,11 @@ extern crate proc_macro;
 
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::Type;
 use std::mem::discriminant;
+use syn::Type;
 
 #[proc_macro_derive(Approx)]
-pub fn approx_derive(
-    tokens: proc_macro::TokenStream,
-) -> proc_macro::TokenStream {
+pub fn approx_derive(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let ast = syn::parse(tokens).unwrap();
 
     impl_approx(&ast)
@@ -31,7 +29,6 @@ fn impl_approx(ast: &syn::DeriveInput) -> proc_macro::TokenStream {
     }
 
     let epsilon_type = epsilon_type.expect("Struct contains no types");
-    
 
     let (abs_diff, rel_eq, ulps_eq) = match &fields {
         syn::Fields::Named(fields) => {

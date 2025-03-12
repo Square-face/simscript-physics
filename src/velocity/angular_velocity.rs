@@ -292,9 +292,9 @@ mod to_rotation {
         let ayz: AngVel = Vec3::new(0., 1., 1.).normalize().into();
         let azx: AngVel = Vec3::new(1., 0., 1.).normalize().into();
 
-        let ex = Quat::from_rotation_x(PI/2.);
-        let ey = Quat::from_rotation_y(PI/2.);
-        let ez = Quat::from_rotation_z(PI/2.);
+        let ex = Quat::from_rotation_x(PI / 2.);
+        let ey = Quat::from_rotation_y(PI / 2.);
+        let ez = Quat::from_rotation_z(PI / 2.);
 
         assert_ulps_eq!(axy.mul_secs(PI).0, ex * ey * ex);
         assert_ulps_eq!(ayz.mul_secs(PI).0, ey * ez * ey);
