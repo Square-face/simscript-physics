@@ -50,7 +50,7 @@ impl Panel {
 
     pub fn to_moment(&self, state: &State) -> Moment {
         let rot = state.transform.rotation.0;
-        let vel = state.momentum / state.mass;
+        let vel = state.momentum / state.mass.rotated(state.transform.rotation.0);
         let rotated = self.rotated(&rot);
         let vel = rotated.tip_velocity(&vel);
 
