@@ -22,58 +22,80 @@ impl Translation {
     pub const NEG_Z: Self = Self::from_z(-1.);
 
     /// Create a new translation
+    #[inline]
+    #[must_use]
     pub const fn new(x: f64, y: f64, z: f64) -> Self {
         Self(Vec3::new(x, y, z))
     }
 
     /// Create a new translation from a [Vec3]
+    #[inline]
+    #[must_use]
     pub const fn from_vec3(v: Vec3) -> Self {
         Self(v)
     }
 
     /// Create a new translation with all values as the same
+    #[inline]
+    #[must_use]
     pub const fn splat(v: f64) -> Self {
         Self::new(v, v, v)
     }
 
     /// Create a new translation with all values as zero except x
+    #[inline]
+    #[must_use]
     pub const fn from_x(x: f64) -> Self {
         Self::new(x, 0., 0.)
     }
 
     /// Create a new translation with all values as zero except y
+    #[inline]
+    #[must_use]
     pub const fn from_y(y: f64) -> Self {
         Self::new(0., y, 0.)
     }
 
     /// Create a new translation with all values as zero except z
+    #[inline]
+    #[must_use]
     pub const fn from_z(z: f64) -> Self {
         Self::new(0., 0., z)
     }
 
     /// Create a new translation with x as a different value
+    #[inline]
+    #[must_use]
     pub const fn with_x(&self, x: f64) -> Self {
         Self::new(x, self.0.y, self.0.z)
     }
 
     /// Create a new translation with y as a different value
+    #[inline]
+    #[must_use]
     pub const fn with_y(&self, y: f64) -> Self {
         Self::new(self.0.x, y, self.0.z)
     }
 
     /// Create a new translation with z as a different value
+    #[inline]
+    #[must_use]
     pub const fn with_z(&self, z: f64) -> Self {
         Self::new(self.0.x, self.0.y, z)
     }
 }
 
 impl From<Vec3> for Translation {
+    #[inline]
+    #[must_use]
     fn from(value: Vec3) -> Self {
         Self::from_vec3(value)
     }
 }
 
 impl From<Translation> for Vec3 {
+    #[inline]
+    #[must_use]
     fn from(value: Translation) -> Self {
         value.0
     }
