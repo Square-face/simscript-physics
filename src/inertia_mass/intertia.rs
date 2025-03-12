@@ -1,4 +1,4 @@
-use glam::DMat3 as Mat3;
+use glam::{DMat3 as Mat3, DQuat as Quat};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Inertia(pub Mat3);
@@ -84,5 +84,14 @@ impl Inertia {
             [0.0, side, 0.0],
             [0.0, 0.0, front],
         ]))
+    }
+
+
+    pub fn rotated(&self, rot: Quat) -> Self {
+        self.rot_mat(Mat3::from_quat(rot))
+    }
+
+    pub fn rot_mat(&self, rot: Mat3) -> Self {
+        Self::new(rot * self.0 * rot.transpose())
     }
 }
