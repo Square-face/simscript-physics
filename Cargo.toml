@@ -3,16 +3,25 @@ name = "simscript-physics"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = [
+    "approx_derive",
+]
+
 [dependencies]
 glam = {version = "0.29.2", features=["approx"]}
 overload = "0.1.1"
 approx = "0.5.1"
 approx_derive = {path="./approx_derive"}
 
-[workspace]
-members = [
-    "approx_derive",
-]
-
 [package.metadata.scripts]
 ntest = "cargo nextest run"
+
+[dev-dependencies]
+color-eyre = "0.6"
+rstest = "0.25.0"
+rstest_reuse = "0.7.0"
+ctor = "0.4.1"
+
+[profile.dev.package.backtrace]
+opt-level = 3

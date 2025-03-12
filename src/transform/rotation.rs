@@ -7,6 +7,7 @@ use glam::DQuat as Quat;
 use overload::overload;
 use std::ops;
 
+/// Represents an objects orientation in 3d space, represented as a quaternion
 #[derive(Debug, Default, Clone, Copy, PartialEq, Approx)]
 pub struct Rotation(pub Quat);
 
@@ -48,7 +49,7 @@ impl Rotation {
         Self::new(self.0.normalize())
     }
 
-    /// Re normalizes the internal quaternion
+    /// Re normalizes the internal quaternion in place
     #[inline]
     pub fn renormalize(&mut self) {
         self.0 = self.0.normalize();
@@ -82,60 +83,68 @@ overload!(-(a: ?Rotation) -> Rotation{ Rotation(a.0.inverse()) });
 mod constructors {
     use super::*;
     use approx::assert_ulps_eq;
-    use std::f64::consts::{FRAC_PI_3, PI};
+    use rstest::rstest;
+    use rstest_reuse::{apply, template};
+    use std::{
+        f64::consts::{FRAC_PI_3, PI},
+        sync::Once,
+    };
 
-    #[test]
-    fn new() {
-        let q1 = Quat::IDENTITY;
-        let q2 = Quat::from_rotation_z(PI / 5.);
+    static INIT: Once = Once::new();
 
-        let r1 = Rotation::new(q1);
-        let r2 = Rotation::new(q2);
-
-        assert_ulps_eq!(r1.0, q1);
-        assert_ulps_eq!(r2.0, q2);
+    #[ctor::ctor]
+    fn setup() {
+        INIT.call_once(|| {
+            color_eyre::install();
+        })
     }
 
-    #[test]
-    fn from_x() {
-        let q1 = Quat::from_rotation_x(0.);
-        let q2 = Quat::from_rotation_x(FRAC_PI_3);
+    #[template]
+    #[rstest]
+    #[case(Quat::IDENTITY)]
+    #[case(Quat::from_rotation_x(-5.25))]
+    #[case(Quat::from_rotation_z(-23.83))]
+    #[case(Quat::from_rotation_z(PI / 5.))]
+    fn rotation_cases(#[case] q: Quat) {}
 
-        let r1 = Rotation::from_x(0.);
-        let r2 = Rotation::from_x(FRAC_PI_3);
+    #[template]
+    #[rstest]
+    #[case(0.)]
+    #[case(PI)]
+    #[case(FRAC_PI_3)]
+    fn angle_cases(#[case] angle: f64) {}
 
-        assert_ulps_eq!(r1.0, q1);
-        assert_ulps_eq!(r2.0, q2);
+    #[apply(rotation_cases)]
+    fn new(#[case] q: Quat) {
+        let r = Rotation::new(q);
+        assert_ulps_eq!(r.0, q);
     }
 
-    #[test]
-    fn from_y() {
-        let q1 = Quat::from_rotation_y(0.);
-        let q2 = Quat::from_rotation_y(FRAC_PI_3);
-
-        let r1 = Rotation::from_y(0.);
-        let r2 = Rotation::from_y(FRAC_PI_3);
-
-        assert_ulps_eq!(r1.0, q1);
-        assert_ulps_eq!(r2.0, q2);
+    #[apply(angle_cases)]
+    fn from_x(#[case] angle: f64) {
+        let q = Quat::from_rotation_x(angle);
+        let r = Rotation::from_x(angle);
+        assert_ulps_eq!(r.0, q);
     }
 
-    #[test]
-    fn from_z() {
-        let q1 = Quat::from_rotation_z(0.);
-        let q2 = Quat::from_rotation_z(FRAC_PI_3);
+    #[apply(angle_cases)]
+    fn from_y(#[case] angle: f64) {
+        let q = Quat::from_rotation_y(angle);
+        let r = Rotation::from_y(angle);
+        assert_ulps_eq!(r.0, q);
+    }
 
-        let r1 = Rotation::from_z(0.);
-        let r2 = Rotation::from_z(FRAC_PI_3);
-
-        assert_ulps_eq!(r1.0, q1);
-        assert_ulps_eq!(r2.0, q2);
+    #[apply(angle_cases)]
+    fn from_z(#[case] angle: f64) {
+        let q = Quat::from_rotation_z(angle);
+        let r = Rotation::from_z(angle);
+        assert_ulps_eq!(r.0, q);
     }
 
     mod constants {
         use super::*;
 
-        #[test]
+        #[rstest]
         fn zero() {
             assert_ulps_eq!(Rotation::ZERO.0, Quat::IDENTITY);
         }
@@ -143,157 +152,176 @@ mod constructors {
 }
 
 #[cfg(test)]
-mod aritmetic {
+#[allow(clippy::eq_op)]
+mod arithmetic {
+    use std::sync::Once;
+
     use super::*;
     use approx::assert_ulps_eq;
+    use color_eyre::Result;
+    use rstest::*;
+    use rstest_reuse::{self, *};
 
-    #[test]
-    fn neg() {
-        let a = Quat::from_rotation_x(1.0);
-        let b = Quat::from_rotation_x(-1.0);
-        let r = Rotation::new(a);
+    static INIT: Once = Once::new();
 
-        assert_ulps_eq!((-r).0, b);
+    #[ctor::ctor]
+    fn setup() {
+        INIT.call_once(|| {
+            color_eyre::install();
+        })
     }
 
-    #[test]
-    fn add() {
-        let a = Quat::from_rotation_x(-5.25);
-        let b = Quat::from_rotation_y(6.24);
-        let c = Quat::from_rotation_z(-9.18);
-
-        let r1 = Rotation::new(a);
-        let r2 = Rotation::new(b);
-        let r3 = Rotation::new(c);
-
-        assert_ulps_eq!((r1 + r1).0, Quat::from_rotation_x(-10.5));
-        assert_ulps_eq!((r2 + r2).0, Quat::from_rotation_y(12.48));
-        assert_ulps_eq!((r3 + r3).0, Quat::from_rotation_z(-18.36));
-
-        assert_ulps_eq!((r1 + r2).0, b * a);
-        assert_ulps_eq!((r1 + r3).0, c * a);
-
-        assert_ulps_eq!((r2 + r1).0, a * b);
-        assert_ulps_eq!((r2 + r3).0, c * b);
-
-        assert_ulps_eq!((r3 + r1).0, a * c);
-        assert_ulps_eq!((r3 + r2).0, b * c);
+    #[rstest]
+    #[case(Quat::from_rotation_x(1.0), Quat::from_rotation_x(-1.0))]
+    fn neg(#[case] q: Quat, #[case] expected: Quat) {
+        let r = Rotation::new(q);
+        assert_ulps_eq!((-r).0, expected);
     }
 
-    #[test]
-    fn sub() {
-        let a = Quat::from_rotation_x(-5.53);
-        let b = Quat::from_rotation_y(0.31);
-        let c = Quat::from_rotation_z(1.06);
+    #[template]
+    #[rstest]
+    #[case(Quat::IDENTITY, Quat::IDENTITY)]
+    #[case(Quat::from_rotation_x(-5.25), Quat::from_rotation_y(6.24))]
+    #[case(Quat::from_rotation_z(-23.83), Quat::from_rotation_x(-53.67))]
+    fn rotation_cases(#[case] q1: Quat, #[case] q2: Quat) {}
 
-        let r1 = Rotation::new(a);
-        let r2 = Rotation::new(b);
-        let r3 = Rotation::new(c);
+    #[apply(rotation_cases)]
+    fn add(q1: Quat, q2: Quat) {
+        let r1 = Rotation::new(q1);
+        let r2 = Rotation::new(q2);
+
+        assert_ulps_eq!((r1 + r1).0, q1 * q1);
+        assert_ulps_eq!((r2 + r2).0, q2 * q2);
+
+        assert_ulps_eq!((r1 + r2).0, q2 * q1);
+        assert_ulps_eq!((r2 + r1).0, q1 * q2);
+    }
+
+    #[apply(rotation_cases)]
+    fn sub(q1: Quat, q2: Quat) {
+        let r1 = Rotation::new(q1);
+        let r2 = Rotation::new(q2);
 
         assert_ulps_eq!((r1 - r1).0, Quat::IDENTITY);
         assert_ulps_eq!((r2 - r2).0, Quat::IDENTITY);
-        assert_ulps_eq!((r3 - r3).0, Quat::IDENTITY);
 
-        assert_ulps_eq!((r1 - r2).0, b.inverse() * a);
-        assert_ulps_eq!((r1 - r3).0, c.inverse() * a);
+        assert_ulps_eq!((r1 - r2).0, q2.inverse() * q1);
 
-        assert_ulps_eq!((r2 - r1).0, a.inverse() * b);
-        assert_ulps_eq!((r2 - r3).0, c.inverse() * b);
-
-        assert_ulps_eq!((r3 - r1).0, a.inverse() * c);
-        assert_ulps_eq!((r3 - r2).0, b.inverse() * c);
+        assert_ulps_eq!((r2 - r1).0, q1.inverse() * q2);
     }
-}
 
-#[cfg(test)]
-mod assign_arithmetic {
-    use super::*;
-    use approx::assert_ulps_eq;
-    use glam::DQuat as Quat;
-
-    #[test]
-    fn test_addassign() {
-        let q1 = Quat::from_rotation_x(44.41);
-        let q2 = Quat::from_rotation_y(94.24);
+    #[apply(rotation_cases)]
+    fn addassign(#[case] q1: Quat, #[case] q2: Quat) -> Result<()> {
         let mut a = Rotation::new(q1);
         let b = Rotation::new(q2);
 
         a += b;
 
         assert_ulps_eq!(a.0, q2 * q1);
+        Ok(())
     }
 
-    #[test]
-    fn test_subassign() {
-        let q1 = Quat::from_rotation_x(0.5);
-        let q2 = Quat::from_rotation_y(0.5);
-        let mut a = Rotation::new(q1);
-        let b = Rotation::new(q2);
+    #[apply(rotation_cases)]
+    fn subassign(#[case] q1: Quat, #[case] q2: Quat) -> Result<()> {
+        let mut r1 = Rotation::new(q1);
+        let r2 = Rotation::new(q2);
 
-        a -= b;
+        r1 -= r2;
 
-        assert_ulps_eq!(a.0, b.0.inverse() * q1);
+        assert_ulps_eq!(r1.0, q2.inverse() * q1);
+        Ok(())
     }
 }
 
 #[cfg(test)]
 mod methods {
+    use std::sync::Once;
+
     use super::*;
     use approx::assert_ulps_eq;
+    use color_eyre::Result;
+    use rstest::*;
+    use rstest_reuse::{self, *};
 
-    #[test]
-    fn normalize() {
-        let q1 = Quat::from_xyzw(50.55, 61.21, -77.89, -49.89);
-        let q2 = Quat::from_xyzw(-10.71, -9.36, 57.51, -61.57);
-        let r1 = Rotation::new(q1);
-        let r2 = Rotation::new(q2);
+    static INIT: Once = Once::new();
 
-        assert_ulps_eq!(r1.normalize().0, q1.normalize());
-        assert_ulps_eq!(r2.normalize().0, q2.normalize());
+    #[ctor::ctor]
+    fn setup() {
+        INIT.call_once(|| {
+            color_eyre::install();
+        })
     }
 
-    #[test]
-    fn renormalize() {
-        let q1 = Quat::from_xyzw(-67.55, 93.46, -52.36, -58.15);
-        let q2 = Quat::from_xyzw(-37.16, 33.91, 28.74, 74.56);
-        let mut r1 = Rotation::new(q1);
-        let mut r2 = Rotation::new(q2);
+    #[template]
+    #[rstest]
+    #[case((43.42,80.02,39.05,-75.06))]
+    #[case((22.49,95.44,41.56,-86.73))]
+    #[case((-97.71, -74.05, -81.30, 0.10))]
+    #[case((60.18, 20.08, -9.72, 71.92))]
+    fn xyzw_cases(#[case] (x, y, z): (f64, f64, f64)) {}
 
-        r1.renormalize();
-        r2.renormalize();
+    #[apply(xyzw_cases)]
+    fn normalize(#[case] (x, y, z, w): (f64, f64, f64, f64)) -> Result<()> {
+        let q = Quat::from_xyzw(x, y, z, w);
+        let r = Rotation::new(q);
 
-        assert_ulps_eq!(r1.0, q1.normalize());
-        assert_ulps_eq!(r2.0, q2.normalize());
+        assert_ulps_eq!(r.normalize().0, q.normalize());
+
+        Ok(())
+    }
+
+    #[apply(xyzw_cases)]
+    fn renormalize(#[case] (x, y, z, w): (f64, f64, f64, f64)) -> Result<()> {
+        let q = Quat::from_xyzw(x, y, z, w);
+        let mut r = Rotation::new(q);
+
+        r.renormalize();
+
+        assert_ulps_eq!(r.0, q.normalize());
+
+        Ok(())
     }
 
     mod traits {
         use super::*;
-
         use glam::EulerRot;
 
-        #[test]
-        fn vec3_to_trans() {
-            let v1 = Quat::from_euler(EulerRot::YXZ, -39.56, 70.77, -68.74);
-            let v2 = Quat::from_euler(EulerRot::YXZ, 93.69, 51.02, 47.78);
+        #[template]
+        #[rstest]
+        #[case((0., 0., 0.))]
+        #[case((0., 75.91, -73.07))]
+        #[case((34.72, 0., -86.77))]
+        #[case((-10.78, 85.32 ,0.))]
+        #[case((-39.56, 70.77, -68.74))]
+        #[case((93.69, 51.02, 47.78))]
+        #[case((-19.39, 61.29, -88.92))]
+        #[case((96.86, -28.67, 69.41))]
+        fn rotation_cases(#[case] (x, y, z): (f64, f64, f64)) {}
 
-            let t2: Rotation = v2.into();
+        #[apply(rotation_cases)]
+        fn vec3_to_translation(#[case] (x, y, z): (f64, f64, f64)) -> Result<()> {
+            let q = Quat::from_euler(EulerRot::YXZ, x, y, z);
+            let t = Rotation::new(q);
 
-            assert_ulps_eq!(Rotation::from(v1), Rotation::new(v1));
-            assert_ulps_eq!(t2, Rotation::new(v2));
+            let t_conv: Rotation = q.into();
+
+            assert_ulps_eq!(Rotation::from(q), t);
+            assert_ulps_eq!(t_conv.0, q);
+
+            Ok(())
         }
 
-        #[test]
-        fn trans_to_vec3() {
-            let v1 = Quat::from_euler(EulerRot::YXZ, -19.39, 61.29, -88.92);
-            let v2 = Quat::from_euler(EulerRot::YXZ, 96.86, -28.67, 69.41);
+        #[apply(rotation_cases)]
+        fn translation_to_vec3(#[case] (x, y, z): (f64, f64, f64)) -> Result<()> {
+            let q = Quat::from_euler(EulerRot::YXZ, x, y, z);
+            let r = Rotation::new(q);
 
-            let t1 = Rotation::new(v1);
-            let t2 = Rotation::new(v2);
+            let q_conv: Quat = r.into();
 
-            let v3: Quat = t2.into();
+            assert_ulps_eq!(Quat::from(r), q);
+            assert_ulps_eq!(q_conv, q);
 
-            assert_ulps_eq!(Quat::from(t1), v1);
-            assert_ulps_eq!(v3, v2);
+            Ok(())
         }
     }
 }
