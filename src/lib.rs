@@ -41,8 +41,6 @@ impl State {
     /// Updates the translation and rotation of the simulated entity by using its stored momentum and
     /// mass
     pub fn step_movement(&mut self, time: Duration) {
-        // Both linear and angular velocity can be calculated by dividing [Momentum]
-        // with [InnertiaMass]
         let velocity = self.momentum / self.mass.rotated(self.transform.rotation.0);
         self.transform += velocity * time;
     }
