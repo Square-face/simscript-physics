@@ -5,7 +5,7 @@ use std::ops;
 pub use angular_momentum::AngMom;
 pub use linear_momentum::LinMom;
 
-use crate::{inertia_mass::InnertiaMass, velocity::Velocity};
+use crate::{inertia_mass::InertiaMass, velocity::Velocity};
 
 mod angular_momentum;
 mod linear_momentum;
@@ -47,6 +47,6 @@ overload!((a: ?Momentum) / (b: f64) -> Momentum{Momentum{ linear: a.linear / b, 
 overload!((a: &mut Momentum) *= (b: f64) { a.linear *= b; a.rotation *= b; });
 overload!((a: &mut Momentum) /= (b: f64) { a.linear /= b; a.rotation /= b; });
 
-overload!((a: ?Momentum) / (b: ?InnertiaMass) -> Velocity{ Velocity::new(a.linear / b.mass, a.rotation / b.inv_inertia) });
+overload!((a: ?Momentum) / (b: ?InertiaMass) -> Velocity{ Velocity::new(a.linear / b.mass, a.rotation / b.inv_inertia) });
 
 overload!(-(a: ?Momentum) -> Momentum{Momentum{ linear: -a.linear, rotation: -a.rotation }});

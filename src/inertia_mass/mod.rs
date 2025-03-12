@@ -11,13 +11,13 @@ mod mass;
 /// mass: kg
 /// inertia: tensor based on kg
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct InnertiaMass {
+pub struct InertiaMass {
     pub mass: Mass,
     pub inertia: Inertia,
     pub inv_inertia: Inertia,
 }
 
-impl InnertiaMass {
+impl InertiaMass {
     pub fn new(mass: Mass, inertia: Inertia) -> Self {
         Self {
             mass,

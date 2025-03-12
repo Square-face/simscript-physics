@@ -63,7 +63,7 @@ impl Panel {
 #[cfg(test)]
 mod test_utils {
 
-    use crate::inertia_mass::{Inertia, InnertiaMass, Mass};
+    use crate::inertia_mass::{Inertia, InertiaMass, Mass};
 
     use super::*;
     use std::f64::consts::PI;
@@ -110,11 +110,11 @@ mod test_utils {
         )
     }
 
-    pub fn cyl_xyz() -> (InnertiaMass, InnertiaMass, InnertiaMass) {
+    pub fn cyl_xyz() -> (InertiaMass, InertiaMass, InertiaMass) {
         (
-            InnertiaMass::new(Mass::new(1.), Inertia::cylinder_x(1., 1., 1.)),
-            InnertiaMass::new(Mass::new(1.), Inertia::cylinder_y(1., 1., 1.)),
-            InnertiaMass::new(Mass::new(1.), Inertia::cylinder_z(1., 1., 1.)),
+            InertiaMass::new(Mass::new(1.), Inertia::cylinder_x(1., 1., 1.)),
+            InertiaMass::new(Mass::new(1.), Inertia::cylinder_y(1., 1., 1.)),
+            InertiaMass::new(Mass::new(1.), Inertia::cylinder_z(1., 1., 1.)),
         )
     }
 

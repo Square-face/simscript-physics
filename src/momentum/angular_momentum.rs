@@ -3,7 +3,7 @@ use overload::overload;
 use std::ops;
 
 use crate::{
-    inertia_mass::{Inertia, InnertiaMass},
+    inertia_mass::{Inertia, InertiaMass},
     velocity::AngVel,
 };
 
