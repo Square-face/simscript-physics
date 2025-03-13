@@ -135,6 +135,7 @@ mod tests {
     #[rstest]
     #[case(Vec3::new(47.98, 89.59, 93.40), 59.55)]
     #[case(Vec3::new(55.85, 29.37, 12.67), 60.21)]
+    #[case(Vec3::new(1.96, 35.66, 63.39), 96.07)]
     fn scalar_cases(#[case] a: Translation, #[case] scalar: f64) {}
 
     #[rstest]
@@ -162,6 +163,40 @@ mod tests {
     #[case(Translation::NEG_Z, Vec3::new(0.0, 0.0, -1.0))]
     fn constants(#[case] t: Translation, #[case] v: Vec3) {
         assert_ulps_eq!(t.0, v);
+    }
+
+    mod with {
+        use super::*;
+
+        #[apply(scalar_cases)]
+        fn with_x(#[case] v: Vec3, #[case] scalar: f64) {
+            let t = Translation::from_vec3(v);
+            let actual = t.with_x(scalar);
+
+            assert_ulps_eq!(actual.0.x, scalar);
+            assert_ulps_eq!(actual.0.y, v.y);
+            assert_ulps_eq!(actual.0.z, v.z);
+        }
+
+        #[apply(scalar_cases)]
+        fn with_y(#[case] v: Vec3, #[case] scalar: f64) {
+            let t = Translation::from_vec3(v);
+            let actual = t.with_y(scalar);
+
+            assert_ulps_eq!(actual.0.x, v.x);
+            assert_ulps_eq!(actual.0.y, scalar);
+            assert_ulps_eq!(actual.0.z, v.z);
+        }
+
+        #[apply(scalar_cases)]
+        fn with_z(#[case] v: Vec3, #[case] scalar: f64) {
+            let t = Translation::from_vec3(v);
+            let actual = t.with_z(scalar);
+
+            assert_ulps_eq!(actual.0.x, v.x);
+            assert_ulps_eq!(actual.0.y, v.y);
+            assert_ulps_eq!(actual.0.z, scalar);
+        }
     }
 
     #[cfg(test)]
