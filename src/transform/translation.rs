@@ -121,6 +121,16 @@ mod tests {
     use approx::assert_ulps_eq;
     use rstest::*;
     use rstest_reuse::{self, *};
+    use std::sync::Once;
+
+    static INIT: Once = Once::new();
+
+    #[ctor::ctor]
+    fn setup() {
+        INIT.call_once(|| {
+            color_eyre::install();
+        })
+    }
 
     #[template]
     #[rstest]
