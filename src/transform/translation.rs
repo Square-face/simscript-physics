@@ -11,15 +11,15 @@ use std::ops;
 pub struct Translation(pub Vec3);
 
 impl Translation {
-    pub const ZERO: Self = Self::splat(0.);
+    pub const ZERO: Self = Self::new(0., 0., 0.);
 
-    pub const X: Self = Self::from_x(1.);
-    pub const Y: Self = Self::from_y(1.);
-    pub const Z: Self = Self::from_z(1.);
+    pub const X: Self = Self::new(1., 0., 0.);
+    pub const Y: Self = Self::new(0., 1., 0.);
+    pub const Z: Self = Self::new(0., 0., 1.);
 
-    pub const NEG_X: Self = Self::from_x(-1.);
-    pub const NEG_Y: Self = Self::from_y(-1.);
-    pub const NEG_Z: Self = Self::from_z(-1.);
+    pub const NEG_X: Self = Self::new(-1., 0., 0.);
+    pub const NEG_Y: Self = Self::new(0., -1., 0.);
+    pub const NEG_Z: Self = Self::new(0., 0., -1.);
 
     /// Create a new translation
     #[inline]
@@ -116,172 +116,134 @@ overload!((a: &mut Translation) /= (b: f64) { a.0 /= b });
 overload!(-(a: ?Translation) -> Translation{ Translation( -a.0 ) });
 
 #[cfg(test)]
-mod constructors {
+mod tests {
     use super::*;
     use approx::assert_ulps_eq;
+    use rstest::*;
+    use rstest_reuse::{self, *};
 
-    #[test]
-    fn new() {
-        let v = Translation::new(1.0, 2.0, 3.0);
-        assert_ulps_eq!(v.0, Vec3::new(1.0, 2.0, 3.0));
+    #[template]
+    #[rstest]
+    #[case(Vec3::new(2.13, 97.05, 50.73), Vec3::new(41.55, 82.06, 50.94))]
+    #[case(Vec3::new(42.54, 74.96, 57.62), Vec3::new(-43.16, -93.65, -68.58))]
+    #[case(Vec3::new(33.36, 27.72, 45.08), Vec3::new(81.12, 85.85, 22.69))]
+    #[case(Vec3::new(88.09, 50.55, 95.59), Vec3::new(6.32, 76.81, 62.23))]
+    #[case(Vec3::new(43.87, 63.16, 30.39), Vec3::new(27.08, 66.96, 79.64))]
+    fn double_cases(#[case] a: Vec3, #[case] b: Vec3) {}
+
+    #[template]
+    #[rstest]
+    #[case(Vec3::new(47.98, 89.59, 93.40), 59.55)]
+    #[case(Vec3::new(55.85, 29.37, 12.67), 60.21)]
+    fn scalar_cases(#[case] a: Translation, #[case] scalar: f64) {}
+
+    #[rstest]
+    #[case(Translation::new(45.08, 48.91, 1.47), Vec3::new(45.08, 48.91, 1.47))]
+    #[case(Translation::new(81.81, 29.43, 68.61), Vec3::new(81.81, 29.43, 68.61))]
+    #[case(Translation::splat(96.99), Vec3::new(96.99, 96.99, 96.99))]
+    #[case(Translation::splat(41.72), Vec3::new(41.72, 41.72, 41.72))]
+    #[case(Translation::from_x(65.37), Vec3::new(65.37, 0.0, 0.0))]
+    #[case(Translation::from_x(72.70), Vec3::new(72.70, 0.0, 0.0))]
+    #[case(Translation::from_y(94.59), Vec3::new(0.0, 94.59, 0.0))]
+    #[case(Translation::from_y(22.66), Vec3::new(0.0, 22.66, 0.0))]
+    #[case(Translation::from_z(42.38), Vec3::new(0.0, 0.0, 42.38))]
+    #[case(Translation::from_z(26.30), Vec3::new(0.0, 0.0, 26.30))]
+    fn constructors(#[case] t: Translation, #[case] v: Vec3) {
+        assert_ulps_eq!(t.0, v);
     }
 
-    #[test]
-    fn splat() {
-        let v = Translation::splat(2.0);
-        assert_ulps_eq!(v.0, Vec3::new(2.0, 2.0, 2.0));
+    #[rstest]
+    #[case(Translation::ZERO, Vec3::splat(0.))]
+    #[case(Translation::X, Vec3::new(1.0, 0.0, 0.0))]
+    #[case(Translation::Y, Vec3::new(0.0, 1.0, 0.0))]
+    #[case(Translation::Z, Vec3::new(0.0, 0.0, 1.0))]
+    #[case(Translation::NEG_X, Vec3::new(-1.0, 0.0, 0.0))]
+    #[case(Translation::NEG_Y, Vec3::new(0.0, -1.0, 0.0))]
+    #[case(Translation::NEG_Z, Vec3::new(0.0, 0.0, -1.0))]
+    fn constants(#[case] t: Translation, #[case] v: Vec3) {
+        assert_ulps_eq!(t.0, v);
     }
 
-    #[test]
-    fn from_x() {
-        let v = Translation::from_x(3.0);
-        assert_ulps_eq!(v.0, Vec3::new(3.0, 0.0, 0.0));
-    }
-
-    #[test]
-    fn from_y() {
-        let v = Translation::from_y(4.0);
-        assert_ulps_eq!(v.0, Vec3::new(0.0, 4.0, 0.0));
-    }
-
-    #[test]
-    fn from_z() {
-        let v = Translation::from_z(5.0);
-        assert_ulps_eq!(v.0, Vec3::new(0.0, 0.0, 5.0));
-    }
-
-    mod constants {
+    #[cfg(test)]
+    mod arithmetic {
         use super::*;
-        use approx::assert_ulps_eq;
 
-        #[test]
-        fn zero() {
-            assert_ulps_eq!(Translation::ZERO.0, Vec3::splat(0.));
+        #[apply(double_cases)]
+        fn add(#[case] a: Vec3, #[case] b: Vec3) {
+            let t1 = Translation::from(a);
+            let t2 = Translation::from(b);
+            assert_ulps_eq!((t1 + t2).0, a + b, epsilon = 1e-14);
         }
 
-        #[test]
-        fn cardinal() {
-            assert_ulps_eq!(Translation::X.0, Vec3::new(1., 0., 0.));
-            assert_ulps_eq!(Translation::Y.0, Vec3::new(0., 1., 0.));
-            assert_ulps_eq!(Translation::Z.0, Vec3::new(0., 0., 1.));
+        #[apply(double_cases)]
+        fn sub(#[case] a: Vec3, #[case] b: Vec3) {
+            let t1 = Translation::from(a);
+            let t2 = Translation::from(b);
+            assert_ulps_eq!((t1 - t2).0, a - b, epsilon = 1e-14);
         }
 
-        #[test]
-        fn cardinal_neg() {
-            assert_ulps_eq!(Translation::NEG_X.0, Vec3::new(-1., 0., 0.));
-            assert_ulps_eq!(Translation::NEG_Y.0, Vec3::new(0., -1., 0.));
-            assert_ulps_eq!(Translation::NEG_Z.0, Vec3::new(0., 0., -1.));
+        #[rstest]
+        #[case(Translation::new(1.0, -2.0, 3.0), -Translation::new(1.0, -2.0, 3.0))]
+        fn neg(#[case] a: Translation, #[case] expected: Translation) {
+            assert_ulps_eq!((-a).0, expected.0);
+        }
+
+        #[apply(scalar_cases)]
+        fn mul_scalar(#[case] a: Vec3, #[case] scalar: f64) {
+            let t = Translation::from_vec3(a);
+            assert_ulps_eq!((t * scalar).0, a * scalar);
         }
     }
-}
 
-#[cfg(test)]
-mod modify {
-    use super::*;
-    use approx::assert_ulps_eq;
+    #[cfg(test)]
+    mod assignment_arithmetic {
+        use super::*;
 
-    #[test]
-    fn with() {
-        let t = Translation::ZERO;
+        #[apply(double_cases)]
+        fn add_assign(#[case] a: Vec3, #[case] b: Vec3) {
+            let mut t1 = Translation::from(a);
+            let t2 = Translation::from(b);
+            t1 += t2;
+            assert_ulps_eq!(t1.0, a + b);
+        }
 
-        assert_ulps_eq!(t.with_x(1.).0, Vec3::X);
-        assert_ulps_eq!(t.with_y(1.).0, Vec3::Y);
-        assert_ulps_eq!(t.with_z(1.).0, Vec3::Z);
-    }
-}
+        #[apply(double_cases)]
+        fn sub_assign(#[case] a: Vec3, #[case] b: Vec3) {
+            let mut t1 = Translation::from(a);
+            let t2 = Translation::from(b);
+            t1 -= t2;
+            assert_ulps_eq!(t1.0, a - b);
+        }
 
-#[cfg(test)]
-mod arithmetic {
-    use super::*;
-    use approx::assert_ulps_eq;
-
-    #[test]
-    fn add() {
-        let a = Translation::new(2.13, 97.05, 50.73);
-        let b = Translation::new(41.55, 82.06, 50.94);
-        let res = a + b;
-        assert_ulps_eq!(res.0, Vec3::new(43.68, 179.11, 101.67));
-    }
-
-    #[test]
-    fn sub() {
-        let a = Translation::new(42.54, 74.96, 57.62);
-        let b = Translation::new(43.16, 93.65, 68.58);
-        let res = a - b;
-        assert_ulps_eq!(res.0, Vec3::new(-0.62, -18.69, -10.96), epsilon = 1e-14);
+        #[apply(scalar_cases)]
+        fn mul_assign_scalar(#[case] a: Vec3, #[case] scalar: f64) {
+            let mut t = Translation::from_vec3(a);
+            t *= scalar;
+            assert_ulps_eq!(t.0, a * scalar);
+        }
     }
 
-    #[test]
-    fn neg() {
-        let a = Translation::new(1.0, -2.0, 3.0);
-        let res = -a;
-        assert_ulps_eq!(res.0, Vec3::new(-1.0, 2.0, -3.0));
-    }
+    #[cfg(test)]
+    mod traits {
+        use super::*;
 
-    #[test]
-    fn mul_scalar() {
-        let a = Translation::new(1.0, -2.0, 3.0);
-        let res = a * 2.0;
-        assert_ulps_eq!(res.0, Vec3::new(2.0, -4.0, 6.0));
-    }
-}
+        #[apply(double_cases)]
+        fn vec3_to_trans(#[case] a: Vec3, #[case] b: Vec3) {
+            let t2: Translation = b.into();
 
-#[cfg(test)]
-mod assignment_arithmetic {
-    use super::*;
-    use approx::assert_ulps_eq;
+            assert_ulps_eq!(Translation::from(a), Translation::from_vec3(a));
+            assert_ulps_eq!(t2, Translation::from_vec3(b));
+        }
 
-    #[test]
-    fn add_assign() {
-        let mut a = Translation::new(1.0, 2.0, 3.0);
-        let b = Translation::new(4.0, 5.0, 6.0);
-        a += b;
-        assert_ulps_eq!(a.0, Vec3::new(5.0, 7.0, 9.0));
-    }
+        #[apply(double_cases)]
+        fn trans_to_vec3(#[case] a: Vec3, #[case] b: Vec3) {
+            let t1 = Translation::from_vec3(a);
+            let t2 = Translation::from_vec3(b);
 
-    #[test]
-    fn sub_assign() {
-        let mut a = Translation::new(4.0, 5.0, 6.0);
-        let b = Translation::new(1.0, 2.0, 3.0);
-        a -= b;
-        assert_ulps_eq!(a.0, Vec3::new(3.0, 3.0, 3.0));
-    }
+            let v3: Vec3 = t2.into();
 
-    #[test]
-    fn mul_assign_scalar() {
-        let mut a = Translation::new(1.0, -2.0, 3.0);
-        a *= 2.0;
-        assert_ulps_eq!(a.0, Vec3::new(2.0, -4.0, 6.0));
-    }
-}
-
-#[cfg(test)]
-mod traits {
-    use super::*;
-    use approx::assert_ulps_eq;
-
-    #[test]
-    fn vec3_to_trans() {
-        let v1 = Vec3::new(67.95, 96.69, 90.22);
-        let v2 = Vec3::new(-88.62, -41.94, 73.85);
-
-        let t2: Translation = v2.into();
-
-        assert_ulps_eq!(Translation::from(v1), Translation::from_vec3(v1));
-        assert_ulps_eq!(t2, Translation::from_vec3(v2));
-    }
-
-    #[test]
-    fn trans_to_vec3() {
-        let v1 = Vec3::new(-83.77, 56.76, 72.10);
-        let v2 = Vec3::new(41.03,-98.07,-66.08);
-
-        let t1 = Translation::from_vec3(v1);
-        let t2 = Translation::from_vec3(v2);
-
-        let v3: Vec3 = t2.into();
-
-        assert_ulps_eq!(Vec3::from(t1), v1);
-        assert_ulps_eq!(v3, v2);
+            assert_ulps_eq!(Vec3::from(t1), a);
+            assert_ulps_eq!(v3, b);
+        }
     }
 }
