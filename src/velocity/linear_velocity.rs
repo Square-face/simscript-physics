@@ -1,14 +1,16 @@
+#[cfg(feature = "approx")]
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+#[cfg(feature = "approx")]
 use approx_derive::Approx;
+
 use glam::DVec3 as Vec3;
 use overload::overload;
 use std::{ops, time::Duration};
 
-extern crate approx;
-
 use crate::transform::Translation;
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Approx)]
+#[cfg_attr(feature = "approx", derive(Approx))]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct LinVel(pub Vec3);
 
 impl LinVel {

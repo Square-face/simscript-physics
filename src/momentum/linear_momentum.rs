@@ -1,5 +1,8 @@
+#[cfg(feature = "approx")]
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+#[cfg(feature = "approx")]
 use approx_derive::Approx;
+
 use glam::DVec3 as Vec3;
 use overload::overload;
 use std::ops;
@@ -10,7 +13,8 @@ use crate::{inertia_mass::Mass, velocity::LinVel};
 ///
 /// While no unit is used explicitly, it is recommended to use this struct as if it is represented
 /// in Ns (Newton-seconds)
-#[derive(Debug, Clone, Copy, PartialEq, Approx)]
+#[cfg_attr(feature = "approx", derive(Approx))]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct LinMom(pub Vec3);
 
 impl LinMom {

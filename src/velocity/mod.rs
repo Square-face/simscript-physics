@@ -1,18 +1,21 @@
+#[cfg(feature = "approx")]
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+#[cfg(feature = "approx")]
 use approx_derive::Approx;
-use glam::DVec3 as Vec3;
-use overload::overload;
-use std::{ops, time::Duration};
 
 pub use angular_velocity::AngVel;
+use glam::DVec3 as Vec3;
 pub use linear_velocity::LinVel;
+use overload::overload;
+use std::{ops, time::Duration};
 
 use crate::transform::Transform;
 
 mod angular_velocity;
 mod linear_velocity;
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Approx)]
+#[cfg_attr(feature = "approx", derive(Approx))]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Velocity {
     pub linear: LinVel,
     pub angular: AngVel,

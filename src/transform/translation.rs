@@ -1,4 +1,7 @@
+
+#[cfg(feature = "approx")]
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+#[cfg(feature = "approx")]
 use approx_derive::Approx;
 use glam::DVec3 as Vec3;
 use overload::overload;
@@ -7,7 +10,8 @@ use std::ops;
 /// Represents a linear transformation in 3d space
 ///
 /// The translation is being represented in meters
-#[derive(Debug, Default, Clone, Copy, PartialEq, Approx)]
+#[cfg_attr(feature="approx", derive(Approx))]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Translation(pub Vec3);
 
 impl Translation {

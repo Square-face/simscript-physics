@@ -1,14 +1,18 @@
 #![allow(clippy::suspicious_op_assign_impl)]
 #![allow(clippy::suspicious_arithmetic_impl)]
 
+#[cfg(feature = "approx")]
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
+#[cfg(feature = "approx")]
 use approx_derive::Approx;
+
 use glam::DQuat as Quat;
 use overload::overload;
 use std::ops;
 
 /// Represents an objects orientation in 3d space, represented as a quaternion
-#[derive(Debug, Default, Clone, Copy, PartialEq, Approx)]
+#[cfg_attr(feature="approx", derive(Approx))]
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Rotation(pub Quat);
 
 impl Rotation {
