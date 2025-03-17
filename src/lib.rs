@@ -13,8 +13,11 @@ pub mod momentum;
 pub mod panels;
 pub mod transform;
 pub mod velocity;
+pub mod builder;
 
 /// Represents the kinetic state of a simulated entity
+///
+/// Can be constructed manually or using [`StateBuilder`]
 #[derive(Debug, Clone, PartialEq)]
 pub struct State {
     pub mass: InertiaMass,
