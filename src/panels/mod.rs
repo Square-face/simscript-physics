@@ -425,7 +425,7 @@ mod to_moment {
         let px = Panel::new(Vec3::ZERO, Vec3::X, 1.);
         let (cx, _, _) = cyl_xyz();
 
-        let s1 = State::new(cx, Transform::ZERO, Momentum::ZERO);
+        let s1 = State::without_panels(cx, Transform::ZERO, Momentum::ZERO);
 
         assert_ulps_eq!(px.to_moment(&s1), Moment::ZERO);
     }
@@ -438,9 +438,9 @@ mod to_moment {
 
         let (cx, cy, cz) = cyl_xyz();
 
-        let sx = State::new(cx, Transform::ZERO, Momentum::from_lin(Vec3::X));
-        let sy = State::new(cy, Transform::ZERO, Momentum::from_lin(Vec3::Y));
-        let sz = State::new(cz, Transform::ZERO, Momentum::from_lin(Vec3::Z));
+        let sx = State::without_panels(cx, Transform::ZERO, Momentum::from_lin(Vec3::X));
+        let sy = State::without_panels(cy, Transform::ZERO, Momentum::from_lin(Vec3::Y));
+        let sz = State::without_panels(cz, Transform::ZERO, Momentum::from_lin(Vec3::Z));
 
         assert_ulps_eq!(
             px.to_moment(&sx),
@@ -473,9 +473,9 @@ mod to_moment {
         let (cx, cy, cz) = cyl_xyz();
 
         // Momentum /2 because inertia is a bit weird
-        let sx = State::new(cx, Transform::ZERO, Momentum::from_ang(Vec3::X / 2.));
-        let sy = State::new(cy, Transform::ZERO, Momentum::from_ang(Vec3::Y / 2.));
-        let sz = State::new(cz, Transform::ZERO, Momentum::from_ang(Vec3::Z / 2.));
+        let sx = State::without_panels(cx, Transform::ZERO, Momentum::from_ang(Vec3::X / 2.));
+        let sy = State::without_panels(cy, Transform::ZERO, Momentum::from_ang(Vec3::Y / 2.));
+        let sz = State::without_panels(cz, Transform::ZERO, Momentum::from_ang(Vec3::Z / 2.));
 
         assert_ulps_eq!(pxy.to_moment(&sx).magnitude(), 0.);
         assert_ulps_eq!(pxy.to_moment(&sy).magnitude(), 0.);
