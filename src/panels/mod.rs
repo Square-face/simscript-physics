@@ -56,7 +56,7 @@ impl Panel {
 
         let force = rotated.to_force(&vel);
 
-        Moment::new(rot.mul_vec3(self.offset), force.0)
+        Moment::from_force_and_offset(force, rot.mul_vec3(self.offset))
     }
 }
 
@@ -442,17 +442,26 @@ mod to_moment {
         let sy = State::new(cy, Transform::ZERO, Momentum::from_lin(Vec3::Y));
         let sz = State::new(cz, Transform::ZERO, Momentum::from_lin(Vec3::Z));
 
-        assert_ulps_eq!(px.to_moment(&sx), Moment::from_force(Vec3::NEG_X * EXP));
+        assert_ulps_eq!(
+            px.to_moment(&sx),
+            Moment::from_force(Force::new(Vec3::NEG_X * EXP))
+        );
         assert_ulps_eq!(px.to_moment(&sy), Moment::ZERO);
         assert_ulps_eq!(px.to_moment(&sz), Moment::ZERO);
 
         assert_ulps_eq!(py.to_moment(&sx), Moment::ZERO);
-        assert_ulps_eq!(py.to_moment(&sy), Moment::from_force(Vec3::NEG_Y * EXP));
+        assert_ulps_eq!(
+            py.to_moment(&sy),
+            Moment::from_force(Force::new(Vec3::NEG_Y * EXP))
+        );
         assert_ulps_eq!(py.to_moment(&sz), Moment::ZERO);
 
         assert_ulps_eq!(pz.to_moment(&sx), Moment::ZERO);
         assert_ulps_eq!(pz.to_moment(&sy), Moment::ZERO);
-        assert_ulps_eq!(pz.to_moment(&sz), Moment::from_force(Vec3::NEG_Z * EXP));
+        assert_ulps_eq!(
+            pz.to_moment(&sz),
+            Moment::from_force(Force::new(Vec3::NEG_Z * EXP))
+        );
     }
 
     #[test]
@@ -470,14 +479,23 @@ mod to_moment {
 
         assert_ulps_eq!(pxy.to_moment(&sx).magnitude(), 0.);
         assert_ulps_eq!(pxy.to_moment(&sy).magnitude(), 0.);
-        assert_ulps_eq!(pxy.to_moment(&sz), Moment::new(Vec3::X, Vec3::NEG_Y * EXP));
+        assert_ulps_eq!(
+            pxy.to_moment(&sz),
+            Moment::from_force_and_offset(Force(Vec3::NEG_Y * EXP), Vec3::X)
+        );
 
-        assert_ulps_eq!(pyz.to_moment(&sx), Moment::new(Vec3::Y, Vec3::NEG_Z * EXP));
+        assert_ulps_eq!(
+            pyz.to_moment(&sx),
+            Moment::from_force_and_offset(Force(Vec3::NEG_Z * EXP), Vec3::Y)
+        );
         assert_ulps_eq!(pyz.to_moment(&sy).magnitude(), 0.);
         assert_ulps_eq!(pyz.to_moment(&sz).magnitude(), 0.);
 
         assert_ulps_eq!(pzx.to_moment(&sx).magnitude(), 0.);
-        assert_ulps_eq!(pzx.to_moment(&sy), Moment::new(Vec3::Z, Vec3::NEG_X * EXP));
+        assert_ulps_eq!(
+            pzx.to_moment(&sy),
+            Moment::from_force_and_offset(Force(Vec3::NEG_X * EXP), Vec3::Z)
+        );
         assert_ulps_eq!(pzx.to_moment(&sz).magnitude(), 0.);
     }
 }
