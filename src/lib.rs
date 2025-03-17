@@ -7,13 +7,13 @@ use panels::Panel;
 use transform::{Rotation, Transform, Translation};
 use velocity::Velocity;
 
+pub mod builder;
 pub mod inertia_mass;
 pub mod moments;
 pub mod momentum;
 pub mod panels;
 pub mod transform;
 pub mod velocity;
-pub mod builder;
 
 /// Represents the kinetic state of a simulated entity
 ///
@@ -49,7 +49,11 @@ impl State {
         Self::without_panels(mass, Transform::ZERO, Momentum::ZERO)
     }
 
-    pub const fn without_panels(mass: InertiaMass, transform: Transform, momentum: Momentum) -> State {
+    pub const fn without_panels(
+        mass: InertiaMass,
+        transform: Transform,
+        momentum: Momentum,
+    ) -> State {
         Self::new(mass, transform, momentum, Vec::new())
     }
 
