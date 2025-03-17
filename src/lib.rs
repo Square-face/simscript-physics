@@ -55,7 +55,10 @@ impl State {
 
     /// Steps the state forward by a [Duration] using the Runge-Kutta Algorithm
     ///
-    pub fn step_movement(&mut self, delta: Duration, moment: Moment) {
+    /// # Arguments
+    /// delta: time difference for this iteration
+    /// moment: any external forces that are effectively constant
+    pub fn simulation_step(&mut self, delta: Duration, moment: Moment) {
         let half_delta = delta / 2;
 
         let int1 = &self;
