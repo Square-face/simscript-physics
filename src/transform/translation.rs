@@ -4,15 +4,15 @@ use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 use approx_derive::Approx;
 use glam::DVec3 as Vec3;
 use overload::overload;
-use std::ops;
+use std::{iter::Sum, ops};
 
 use super::Transform;
 
 /// Represents a 3D translation vector.
-/// 
-/// This struct encapsulates a displacement in 3D space using a [`Vec3`].
-/// It provides various constructors and utility methods for working with translation vectors.
-#[cfg_attr(feature="approx", derive(Approx))]
+///
+/// This struct encapsulates a displacement in 3D space using a [`Vec3`] (double-precision 3D vector).
+/// It provides constructors, utility methods, and operator overloads for manipulating translation vectors.
+#[cfg_attr(feature = "approx", derive(Approx))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Translation(pub Vec3);
 
@@ -122,6 +122,14 @@ impl From<Transform> for Translation {
     #[must_use]
     fn from(value: Transform) -> Self {
         value.translation
+    }
+}
+
+impl Sum for Translation {
+    #[inline]
+    #[must_use]
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::ZERO, |a, b| a + b)
     }
 }
 

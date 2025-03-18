@@ -8,12 +8,12 @@ use approx_derive::Approx;
 
 use glam::DQuat as Quat;
 use overload::overload;
-use std::ops;
+use std::{iter::Sum, ops};
 
 use super::Transform;
 
 /// Represents an object's orientation in 3D space, using a quaternion.
-/// This struct wraps a `glam::DQuat` and provides common rotation operations.
+/// This struct wraps a [`Quat`] and provides common rotation operations.
 #[cfg_attr(feature = "approx", derive(Approx))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Rotation(pub Quat);
@@ -22,44 +22,62 @@ impl Rotation {
     /// A constant representing no rotation (identity quaternion).
     pub const ZERO: Self = Self::new(Quat::IDENTITY);
 
-    /// Creates a new `Rotation` from the given quaternion.
+    /// Creates a new [`Rotation`] from the given quaternion.
+    ///
+    /// # Arguments
+    /// * `ang` - The quaternion representing the rotation ([`Quat`])
+    ///
+    /// # Returns
+    /// A new [`Rotation`] instance wrapping the given quaternion
     #[inline]
     #[must_use]
     pub const fn new(ang: Quat) -> Self {
         Self(ang)
     }
 
-    /// Creates a `Rotation` representing a rotation around the x-axis.
+    /// Creates a [`Rotation`] representing a rotation around the x-axis.
     ///
     /// # Arguments
-    /// * `ang` - The angle in radians.
+    /// * `ang` - The angle in radians
+    ///
+    /// # Returns
+    /// A new [`Rotation`] representing the specified rotation around the x-axis
     #[inline]
     #[must_use]
     pub fn from_x(ang: f64) -> Self {
         Self(Quat::from_rotation_x(ang))
     }
 
-    /// Creates a `Rotation` representing a rotation around the y-axis.
+    /// Creates a [`Rotation`] representing a rotation around the y-axis.
     ///
     /// # Arguments
-    /// * `ang` - The angle in radians.
+    /// * `ang` - The angle in radians
+    ///
+    /// # Returns
+    /// A new [`Rotation`] representing the specified rotation around the y-axis
     #[inline]
     #[must_use]
     pub fn from_y(ang: f64) -> Self {
         Self(Quat::from_rotation_y(ang))
     }
 
-    /// Creates a `Rotation` representing a rotation around the z-axis.
+    /// Creates a [`Rotation`] representing a rotation around the z-axis.
     ///
     /// # Arguments
-    /// * `ang` - The angle in radians.
+    /// * `ang` - The angle in radians
+    ///
+    /// # Returns
+    /// A new [`Rotation`] representing the specified rotation around the z-axis
     #[inline]
     #[must_use]
     pub fn from_z(ang: f64) -> Self {
         Self(Quat::from_rotation_z(ang))
     }
 
-    /// Returns a new `Rotation` with a normalized quaternion.
+    /// Returns a new [`Rotation`] with a normalized quaternion.
+    ///
+    /// # Returns
+    /// A new [`Rotation`] with the quaternion normalized to unit length
     #[inline]
     #[must_use]
     pub fn normalize(&self) -> Self {
@@ -67,8 +85,15 @@ impl Rotation {
     }
 }
 
-/// Implements conversion from `Quat` to `Rotation`.
+/// Implements conversion from [`Quat`] to [`Rotation`].
 impl From<Quat> for Rotation {
+    /// Converts a [`Quat`] into a [`Rotation`].
+    ///
+    /// # Arguments
+    /// * `value` - The quaternion to convert
+    ///
+    /// # Returns
+    /// A new [`Rotation`] wrapping the input quaternion
     #[inline]
     #[must_use]
     fn from(value: Quat) -> Self {
@@ -76,8 +101,15 @@ impl From<Quat> for Rotation {
     }
 }
 
-/// Implements conversion from `Rotation` to `Quat`.
+/// Implements conversion from [`Rotation`] to [`Quat`].
 impl From<Rotation> for Quat {
+    /// Converts a [`Rotation`] into a [`Quat`].
+    ///
+    /// # Arguments
+    /// * `value` - The rotation to convert
+    ///
+    /// # Returns
+    /// The underlying quaternion from the [`Rotation`]
     #[inline]
     #[must_use]
     fn from(value: Rotation) -> Self {
@@ -85,8 +117,15 @@ impl From<Rotation> for Quat {
     }
 }
 
-/// Implements conversion from `Transform` to `Rotation`.
+/// Implements conversion from [`Transform`] to [`Rotation`].
 impl From<Transform> for Rotation {
+    /// Extracts the rotation component from a [`Transform`].
+    ///
+    /// # Arguments
+    /// * `value` - The transform to convert
+    ///
+    /// # Returns
+    /// The [`Rotation`] component of the input [`Transform`]
     #[inline]
     #[must_use]
     fn from(value: Transform) -> Self {
@@ -94,12 +133,30 @@ impl From<Transform> for Rotation {
     }
 }
 
-overload!((a: ?Rotation) + (b: ?Rotation) -> Rotation{ Rotation( b.0 * a.0 ) });
-overload!((a: ?Rotation) - (b: ?Rotation) -> Rotation{ Rotation( b.0.inverse() * a.0) });
-overload!((a: &mut Rotation) += (b: ?Rotation) { a.0 = b.0 * a.0 });
-overload!((a: &mut Rotation) -= (b: ?Rotation) { a.0 = b.0.inverse() * a.0});
+/// Implementation of summing rotations
+impl Sum for Rotation {
+    /// Computes the sum of an iterator of rotations.
+    ///
+    /// Rotations are combined using quaternion multiplication.
+    ///
+    /// # Arguments
+    /// * `iter` - An iterator over [`Rotation`] values
+    ///
+    /// # Returns
+    /// The combined [`Rotation`] representing the sum of all rotations in the iterator
+    #[inline]
+    #[must_use]
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::ZERO, |a, b| a + b)
+    }
+}
 
-overload!(-(a: ?Rotation) -> Rotation{ Rotation(a.0.inverse()) });
+// Operator overloads for rotation arithmetic
+overload!((a: ?Rotation) + (b: ?Rotation) -> Rotation { Rotation(b.0 * a.0) });
+overload!((a: ?Rotation) - (b: ?Rotation) -> Rotation { Rotation(b.0.inverse() * a.0) });
+overload!((a: &mut Rotation) += (b: ?Rotation) { a.0 = b.0 * a.0 });
+overload!((a: &mut Rotation) -= (b: ?Rotation) { a.0 = b.0.inverse() * a.0 });
+overload!(-(a: ?Rotation) -> Rotation { Rotation(a.0.inverse()) });
 
 #[cfg(test)]
 mod tests {
