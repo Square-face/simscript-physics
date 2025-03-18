@@ -1,4 +1,3 @@
-
 #[cfg(feature = "approx")]
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 #[cfg(feature = "approx")]
@@ -7,81 +6,91 @@ use glam::DVec3 as Vec3;
 use overload::overload;
 use std::ops;
 
-/// Represents a linear transformation in 3d space
-///
-/// The translation is being represented in meters
+use super::Transform;
+
+/// Represents a 3D translation vector.
+/// 
+/// This struct encapsulates a displacement in 3D space using a [`Vec3`].
+/// It provides various constructors and utility methods for working with translation vectors.
 #[cfg_attr(feature="approx", derive(Approx))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Translation(pub Vec3);
 
 impl Translation {
+    /// The zero translation vector (no displacement).
     pub const ZERO: Self = Self::new(0., 0., 0.);
 
-    pub const X: Self = Self::new(1., 0., 0.);
-    pub const Y: Self = Self::new(0., 1., 0.);
-    pub const Z: Self = Self::new(0., 0., 1.);
+    /// Unit translation along the X-axis.
+    pub const X: Self = Self::from_x(1.);
+    /// Unit translation along the Y-axis.
+    pub const Y: Self = Self::from_y(1.);
+    /// Unit translation along the Z-axis.
+    pub const Z: Self = Self::from_z(1.);
 
-    pub const NEG_X: Self = Self::new(-1., 0., 0.);
-    pub const NEG_Y: Self = Self::new(0., -1., 0.);
-    pub const NEG_Z: Self = Self::new(0., 0., -1.);
+    /// Unit translation in the negative X direction.
+    pub const NEG_X: Self = Self::from_x(-1.);
+    /// Unit translation in the negative Y direction.
+    pub const NEG_Y: Self = Self::from_y(-1.);
+    /// Unit translation in the negative Z direction.
+    pub const NEG_Z: Self = Self::from_z(-1.);
 
-    /// Create a new translation
+    /// Creates a new [`Translation`] from individual components.
     #[inline]
     #[must_use]
     pub const fn new(x: f64, y: f64, z: f64) -> Self {
         Self(Vec3::new(x, y, z))
     }
 
-    /// Create a new translation from a [Vec3]
+    /// Creates a [`Translation`] from an existing [`Vec3`].
     #[inline]
     #[must_use]
     pub const fn from_vec3(v: Vec3) -> Self {
         Self(v)
     }
 
-    /// Create a new translation with all values as the same
+    /// Creates a [`Translation`] with all components set to the same value.
     #[inline]
     #[must_use]
     pub const fn splat(v: f64) -> Self {
         Self::new(v, v, v)
     }
 
-    /// Create a new translation with all values as zero except x
+    /// Creates a [`Translation`] along the X-axis.
     #[inline]
     #[must_use]
     pub const fn from_x(x: f64) -> Self {
         Self::new(x, 0., 0.)
     }
 
-    /// Create a new translation with all values as zero except y
+    /// Creates a [`Translation`] along the Y-axis.
     #[inline]
     #[must_use]
     pub const fn from_y(y: f64) -> Self {
         Self::new(0., y, 0.)
     }
 
-    /// Create a new translation with all values as zero except z
+    /// Creates a [`Translation`] along the Z-axis.
     #[inline]
     #[must_use]
     pub const fn from_z(z: f64) -> Self {
         Self::new(0., 0., z)
     }
 
-    /// Create a new translation with x as a different value
+    /// Returns a new [`Translation`] with the given X component, keeping Y and Z the same.
     #[inline]
     #[must_use]
     pub const fn with_x(&self, x: f64) -> Self {
         Self::new(x, self.0.y, self.0.z)
     }
 
-    /// Create a new translation with y as a different value
+    /// Returns a new [`Translation`] with the given Y component, keeping X and Z the same.
     #[inline]
     #[must_use]
     pub const fn with_y(&self, y: f64) -> Self {
         Self::new(self.0.x, y, self.0.z)
     }
 
-    /// Create a new translation with z as a different value
+    /// Returns a new [`Translation`] with the given Z component, keeping X and Y the same.
     #[inline]
     #[must_use]
     pub const fn with_z(&self, z: f64) -> Self {
@@ -89,6 +98,7 @@ impl Translation {
     }
 }
 
+/// Implements conversion from [`Vec3`] to [`Translation`].
 impl From<Vec3> for Translation {
     #[inline]
     #[must_use]
@@ -97,6 +107,7 @@ impl From<Vec3> for Translation {
     }
 }
 
+/// Implements conversion from [`Translation`] to [`Vec3`].
 impl From<Translation> for Vec3 {
     #[inline]
     #[must_use]
@@ -105,13 +116,20 @@ impl From<Translation> for Vec3 {
     }
 }
 
-// Adding a subtracting with self is a valid op
+/// Implements conversion from [`Transform`] to [`Translation`].
+impl From<Transform> for Translation {
+    #[inline]
+    #[must_use]
+    fn from(value: Transform) -> Self {
+        value.translation
+    }
+}
+
 overload!((a: ?Translation) + (b: ?Translation) -> Translation{ Translation( a.0 + b.0 ) });
 overload!((a: ?Translation) - (b: ?Translation) -> Translation{ Translation( a.0 - b.0 ) });
 overload!((a: &mut Translation) += (b: ?Translation) { a.0 += b.0 });
 overload!((a: &mut Translation) -= (b: ?Translation) { a.0 -= b.0 });
 
-// Multiplying or dividing by scalars shouldn't change the type
 overload!((a: ?Translation) * (b: f64) -> Translation{ Translation( a.0 * b ) });
 overload!((a: ?Translation) / (b: f64) -> Translation{ Translation( a.0 / b ) });
 overload!((a: &mut Translation) *= (b: f64) { a.0 *= b });
