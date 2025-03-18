@@ -33,6 +33,8 @@ impl Velocity {
     pub const ZERO: Self = Self::new(LinVel::ZERO, AngVel::ZERO);
 
     /// Constructs a new `Velocity` from given linear and angular velocities.
+    #[inline]
+    #[must_use]
     pub const fn new(lin: LinVel, ang: AngVel) -> Self {
         Self {
             linear: lin,
@@ -41,26 +43,36 @@ impl Velocity {
     }
 
     /// Creates a velocity with only a linear component.
+    #[inline]
+    #[must_use]
     pub const fn from_linear(v: LinVel) -> Self {
         Self::new(v, AngVel::ZERO)
     }
 
     /// Creates a velocity with only an angular component.
+    #[inline]
+    #[must_use]
     pub const fn from_angular(v: AngVel) -> Self {
         Self::new(LinVel::ZERO, v)
     }
 
     /// Constructs a `Velocity` from raw vector representations of linear and angular velocity.
+    #[inline]
+    #[must_use]
     pub const fn from_vec3s(lin: Vec3, ang: Vec3) -> Self {
         Self::new(LinVel::from_vec3(lin), AngVel::from_vec3(ang))
     }
 
     /// Constructs a `Velocity` from a raw vector representing only linear velocity.
+    #[inline]
+    #[must_use]
     pub const fn from_linear_vec3(v: Vec3) -> Self {
         Self::from_vec3s(v, Vec3::ZERO)
     }
 
     /// Constructs a `Velocity` from a raw vector representing only angular velocity.
+    #[inline]
+    #[must_use]
     pub const fn from_angular_vec3(v: Vec3) -> Self {
         Self::from_vec3s(Vec3::ZERO, v)
     }
@@ -70,6 +82,8 @@ impl Velocity {
     /// Scales the velocity by a time duration in seconds, returning a [`Transform`].
     /// 
     /// This effectively calculates the displacement that would occur over `rhs` seconds.
+    #[inline]
+    #[must_use]
     pub fn mul_secs(&self, rhs: f64) -> Transform {
         Transform::new(self.linear.mul_secs(rhs), self.angular.mul_secs(rhs))
     }
@@ -78,6 +92,8 @@ impl Velocity {
     /// 
     /// Internally, this calls [`Velocity::mul_secs`] using [`Duration::as_secs_f64`].
     /// If performance is critical, directly calling `mul_secs` may be preferable.
+    #[inline]
+    #[must_use]
     pub fn mul_dur(&self, rhs: &Duration) -> Transform {
         self.mul_secs(rhs.as_secs_f64())
     }
@@ -85,12 +101,16 @@ impl Velocity {
 
 /// Conversion implementations to create `Velocity` from individual components.
 impl From<LinVel> for Velocity {
+    #[inline]
+    #[must_use]
     fn from(value: LinVel) -> Self {
         Self::from_linear(value)
     }
 }
 
 impl From<AngVel> for Velocity {
+    #[inline]
+    #[must_use]
     fn from(value: AngVel) -> Self {
         Self::from_angular(value)
     }
@@ -98,6 +118,8 @@ impl From<AngVel> for Velocity {
 
 /// Implements summation over an iterator of `Velocity` values.
 impl Sum for Velocity {
+    #[inline]
+    #[must_use]
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
         iter.fold(Self::ZERO, |a, b| a + b)
     }
