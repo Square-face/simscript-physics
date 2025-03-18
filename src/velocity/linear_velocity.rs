@@ -109,6 +109,12 @@ impl From<LinVel> for Vec3 {
     }
 }
 
+impl From<Velocity> for LinVel {
+    fn from(value: Velocity) -> Self {
+        value.linear
+    }
+}
+
 impl Sum for LinVel {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
         iter.fold(Self::ZERO, |a, b| a + b)

@@ -5,7 +5,7 @@ use approx_derive::Approx;
 
 use glam::{DQuat as Quat, DVec3 as Vec3};
 use overload::overload;
-use std::{ops, time::Duration};
+use std::{iter::Sum, ops, time::Duration};
 
 use crate::transform::Rotation;
 
@@ -98,15 +98,26 @@ impl AngVel {
     }
 }
 
+impl From<AngVel> for Vec3 {
+    fn from(value: AngVel) -> Self {
+        value.0
+    }
+}
 impl From<Vec3> for AngVel {
     fn from(value: Vec3) -> Self {
         Self::from_vec3(value)
     }
 }
 
-impl From<AngVel> for Vec3 {
-    fn from(value: AngVel) -> Self {
-        value.0
+impl From<Velocity> for AngVel {
+    fn from(value: Velocity) -> Self {
+        value.angular
+    }
+}
+
+impl Sum for AngVel {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::ZERO, |a, b| a + b)
     }
 }
 

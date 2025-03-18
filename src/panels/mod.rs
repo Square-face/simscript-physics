@@ -425,11 +425,7 @@ mod to_moment {
         let pz = Panel::new(Vec3::ZERO, Vec3::Z, 1.);
 
         let (lx, ly, lz) = xyz_linvel();
-        let (vx, vy, vz) = (
-            Velocity::from_lin(lx),
-            Velocity::from_lin(ly),
-            Velocity::from_lin(lz),
-        );
+        let (vx, vy, vz) = (lx.to_vel(), ly.to_vel(), lz.to_vel());
 
         assert_ulps_eq!(
             px.to_moment(&vx, &q0),
@@ -462,11 +458,7 @@ mod to_moment {
         let pzx = Panel::new(Vec3::Z, Vec3::X, 1.);
 
         let (lx, ly, lz) = xyz_linvel();
-        let (vx, vy, vz) = (
-            Velocity::from_lin(lx),
-            Velocity::from_lin(ly),
-            Velocity::from_lin(lz),
-        );
+        let (vx, vy, vz) = (lx.to_vel(), ly.to_vel(), lz.to_vel());
 
         assert_ulps_eq!(pxy.to_moment(&vx, &q0).magnitude(), 0.);
         assert_ulps_eq!(pxy.to_moment(&vy, &q0).force, Force(Vec3::NEG_Y * EXP));
