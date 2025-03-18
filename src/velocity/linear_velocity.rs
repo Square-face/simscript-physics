@@ -13,7 +13,7 @@ use super::{AngVel, Velocity};
 
 /// Linear velocity in 3D space.
 ///
-/// This struct wraps a `Vec3` to provide a strongly typed representation of linear velocity,
+/// This struct wraps a [`Vec3`] to provide a strongly typed representation of linear velocity,
 /// making operations and transformations explicit.
 #[cfg_attr(feature = "approx", derive(Approx))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
@@ -23,49 +23,49 @@ impl LinVel {
     /// A zero linear velocity vector.
     pub const ZERO: Self = Self::splat(0.);
 
-    /// Velocity of magnitude one in all directions.
+    /// Linear velocity of magnitude one in all directions.
     pub const ONE: Self = Self::splat(1.);
 
-    /// Unit velocity in the positive X direction.
+    /// Unit linear velocity in the positive X direction.
     pub const X: Self = Self::with_x(1.);
-    /// Unit velocity in the positive Y direction.
+    /// Unit linear velocity in the positive Y direction.
     pub const Y: Self = Self::with_y(1.);
-    /// Unit velocity in the positive Z direction.
+    /// Unit linear velocity in the positive Z direction.
     pub const Z: Self = Self::with_z(1.);
 
-    /// Unit velocity in the negative X direction.
+    /// Unit linear velocity in the negative X direction.
     pub const NEG_X: Self = Self::with_x(-1.);
-    /// Unit velocity in the negative Y direction.
+    /// Unit linear velocity in the negative Y direction.
     pub const NEG_Y: Self = Self::with_y(-1.);
-    /// Unit velocity in the negative Z direction.
+    /// Unit linear velocity in the negative Z direction.
     pub const NEG_Z: Self = Self::with_z(-1.);
 
-    /// Creates a new `LinVel` with the specified `x`, `y`, and `z` components.
+    /// Creates a new [`LinVel`] with the specified `x`, `y`, and `z` components.
     pub const fn new(x: f64, y: f64, z: f64) -> Self {
         Self(Vec3::new(x, y, z))
     }
 
-    /// Creates a `LinVel` from an existing `Vec3`.
+    /// Creates a [`LinVel`] from an existing [`Vec3`].
     pub const fn from_vec3(v: Vec3) -> Self {
         Self(v)
     }
 
-    /// Creates a `LinVel` where all components are set to `v`.
+    /// Creates a [`LinVel`] where all components are set to `v`.
     pub const fn splat(v: f64) -> Self {
         Self::new(v, v, v)
     }
 
-    /// Creates a `LinVel` with only the X component set.
+    /// Creates a [`LinVel`] with only the X component set.
     pub const fn with_x(x: f64) -> Self {
         Self::new(x, 0., 0.)
     }
 
-    /// Creates a `LinVel` with only the Y component set.
+    /// Creates a [`LinVel`] with only the Y component set.
     pub const fn with_y(y: f64) -> Self {
         Self::new(0., y, 0.)
     }
 
-    /// Creates a `LinVel` with only the Z component set.
+    /// Creates a [`LinVel`] with only the Z component set.
     pub const fn with_z(z: f64) -> Self {
         Self::new(0., 0., z)
     }
