@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use inertia_mass::InertiaMass;
 use momentum::Momentum;
+use panels::Panel;
 use transform::Transform;
 
 pub mod inertia_mass;
@@ -12,28 +13,27 @@ pub mod transform;
 pub mod velocity;
 
 /// Represents the kinetic state of a simulated entity
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct State {
     pub mass: InertiaMass,
     pub transform: Transform,
     pub momentum: Momentum,
+    pub panels: Vec<Panel>,
 }
 
 impl State {
-    pub const fn new(mass: InertiaMass, transform: Transform, momentum: Momentum) -> Self {
+    pub fn new(
+        mass: InertiaMass,
+        transform: Transform,
+        momentum: Momentum,
+        panels: Vec<Panel>,
+    ) -> Self {
         Self {
             mass,
             transform,
             momentum,
+            panels,
         }
-    }
-
-    pub const fn new_stationary(mass: InertiaMass, transform: Transform) -> Self {
-        Self::new(mass, transform, Momentum::ZERO)
-    }
-
-    pub const fn new_zeroed(mass: InertiaMass) -> Self {
-        Self::new(mass, Transform::ZERO, Momentum::ZERO)
     }
 
     /// Steps the state forward by a [Duration]
