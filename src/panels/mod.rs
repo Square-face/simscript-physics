@@ -3,7 +3,6 @@ use glam::{DQuat as Quat, DVec3 as Vec3};
 use crate::{
     moments::{Force, Moment},
     velocity::{AngVel, LinVel, Velocity},
-    State,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -48,22 +47,18 @@ impl Panel {
         LinVel(linear) + angular
     }
 
-    pub fn to_moment(&self, state: &State) -> Moment {
-        let rot = state.transform.rotation.0;
-        let vel = state.momentum / state.mass.rotated(state.transform.rotation.0);
-        let rotated = self.rotated(&rot);
-        let vel = rotated.tip_velocity(&vel);
+    pub fn to_moment(&self, vel: &Velocity, rot: &Quat) -> Moment {
+        let rotated = self.rotated(rot);
+        let vel = rotated.tip_velocity(vel);
 
         let force = rotated.to_force(&vel);
 
-        Moment::from_force_and_offset(force, rot.mul_vec3(self.offset))
+        Moment::from_force_and_offset(force, rotated.offset)
     }
 }
 
 #[cfg(test)]
 mod test_utils {
-
-    use crate::inertia_mass::{Inertia, InertiaMass, Mass};
 
     use super::*;
     use std::f64::consts::PI;
@@ -107,14 +102,6 @@ mod test_utils {
             LinVel::with_x(1.0),
             LinVel::with_y(1.0),
             LinVel::with_z(1.0),
-        )
-    }
-
-    pub fn cyl_xyz() -> (InertiaMass, InertiaMass, InertiaMass) {
-        (
-            InertiaMass::new(Mass::new(1.), Inertia::cylinder_x(1., 1., 1.)),
-            InertiaMass::new(Mass::new(1.), Inertia::cylinder_y(1., 1., 1.)),
-            InertiaMass::new(Mass::new(1.), Inertia::cylinder_z(1., 1., 1.)),
         )
     }
 
@@ -417,85 +404,83 @@ mod to_moment {
     use super::*;
     use test_utils::*;
 
-    use crate::{momentum::Momentum, transform::Transform};
+    use crate::moments::Torque;
     use approx::assert_ulps_eq;
 
     #[test]
     fn stationary() {
         let px = Panel::new(Vec3::ZERO, Vec3::X, 1.);
-        let (cx, _, _) = cyl_xyz();
+        let v0 = Velocity::ZERO;
+        let q0 = Quat::IDENTITY;
 
-        let s1 = State::new(cx, Transform::ZERO, Momentum::ZERO);
-
-        assert_ulps_eq!(px.to_moment(&s1), Moment::ZERO);
+        assert_ulps_eq!(px.to_moment(&v0, &q0), Moment::ZERO);
     }
 
     #[test]
     fn linear_movement() {
+        let q0 = Quat::IDENTITY;
+
         let px = Panel::new(Vec3::ZERO, Vec3::X, 1.);
         let py = Panel::new(Vec3::ZERO, Vec3::Y, 1.);
         let pz = Panel::new(Vec3::ZERO, Vec3::Z, 1.);
 
-        let (cx, cy, cz) = cyl_xyz();
-
-        let sx = State::new(cx, Transform::ZERO, Momentum::from_lin(Vec3::X));
-        let sy = State::new(cy, Transform::ZERO, Momentum::from_lin(Vec3::Y));
-        let sz = State::new(cz, Transform::ZERO, Momentum::from_lin(Vec3::Z));
-
-        assert_ulps_eq!(
-            px.to_moment(&sx),
-            Moment::from_force(Force::new(Vec3::NEG_X * EXP))
+        let (lx, ly, lz) = xyz_linvel();
+        let (vx, vy, vz) = (
+            Velocity::from_lin(lx),
+            Velocity::from_lin(ly),
+            Velocity::from_lin(lz),
         );
-        assert_ulps_eq!(px.to_moment(&sy), Moment::ZERO);
-        assert_ulps_eq!(px.to_moment(&sz), Moment::ZERO);
 
-        assert_ulps_eq!(py.to_moment(&sx), Moment::ZERO);
         assert_ulps_eq!(
-            py.to_moment(&sy),
-            Moment::from_force(Force::new(Vec3::NEG_Y * EXP))
+            px.to_moment(&vx, &q0),
+            Moment::from_force(Force(Vec3::NEG_X * EXP))
         );
-        assert_ulps_eq!(py.to_moment(&sz), Moment::ZERO);
+        assert_ulps_eq!(px.to_moment(&vy, &q0), Moment::ZERO);
+        assert_ulps_eq!(px.to_moment(&vz, &q0), Moment::ZERO);
 
-        assert_ulps_eq!(pz.to_moment(&sx), Moment::ZERO);
-        assert_ulps_eq!(pz.to_moment(&sy), Moment::ZERO);
+        assert_ulps_eq!(py.to_moment(&vx, &q0), Moment::ZERO);
         assert_ulps_eq!(
-            pz.to_moment(&sz),
-            Moment::from_force(Force::new(Vec3::NEG_Z * EXP))
+            py.to_moment(&vy, &q0),
+            Moment::from_force(Force(Vec3::NEG_Y * EXP))
+        );
+        assert_ulps_eq!(py.to_moment(&vz, &q0), Moment::ZERO);
+
+        assert_ulps_eq!(pz.to_moment(&vx, &q0), Moment::ZERO);
+        assert_ulps_eq!(pz.to_moment(&vy, &q0), Moment::ZERO);
+        assert_ulps_eq!(
+            pz.to_moment(&vz, &q0),
+            Moment::from_force(Force(Vec3::NEG_Z * EXP))
         );
     }
 
     #[test]
     fn angular_movement() {
+        let q0 = Quat::IDENTITY;
+
         let pxy = Panel::new(Vec3::X, Vec3::Y, 1.);
         let pyz = Panel::new(Vec3::Y, Vec3::Z, 1.);
         let pzx = Panel::new(Vec3::Z, Vec3::X, 1.);
 
-        let (cx, cy, cz) = cyl_xyz();
-
-        // Momentum /2 because inertia is a bit weird
-        let sx = State::new(cx, Transform::ZERO, Momentum::from_ang(Vec3::X / 2.));
-        let sy = State::new(cy, Transform::ZERO, Momentum::from_ang(Vec3::Y / 2.));
-        let sz = State::new(cz, Transform::ZERO, Momentum::from_ang(Vec3::Z / 2.));
-
-        assert_ulps_eq!(pxy.to_moment(&sx).magnitude(), 0.);
-        assert_ulps_eq!(pxy.to_moment(&sy).magnitude(), 0.);
-        assert_ulps_eq!(
-            pxy.to_moment(&sz),
-            Moment::from_force_and_offset(Force(Vec3::NEG_Y * EXP), Vec3::X)
+        let (lx, ly, lz) = xyz_linvel();
+        let (vx, vy, vz) = (
+            Velocity::from_lin(lx),
+            Velocity::from_lin(ly),
+            Velocity::from_lin(lz),
         );
 
-        assert_ulps_eq!(
-            pyz.to_moment(&sx),
-            Moment::from_force_and_offset(Force(Vec3::NEG_Z * EXP), Vec3::Y)
-        );
-        assert_ulps_eq!(pyz.to_moment(&sy).magnitude(), 0.);
-        assert_ulps_eq!(pyz.to_moment(&sz).magnitude(), 0.);
+        assert_ulps_eq!(pxy.to_moment(&vx, &q0).magnitude(), 0.);
+        assert_ulps_eq!(pxy.to_moment(&vy, &q0).force, Force(Vec3::NEG_Y * EXP));
+        assert_ulps_eq!(pxy.to_moment(&vy, &q0).torque, Torque(Vec3::NEG_Z * EXP));
+        assert_ulps_eq!(pxy.to_moment(&vz, &q0).magnitude(), 0.);
 
-        assert_ulps_eq!(pzx.to_moment(&sx).magnitude(), 0.);
-        assert_ulps_eq!(
-            pzx.to_moment(&sy),
-            Moment::from_force_and_offset(Force(Vec3::NEG_X * EXP), Vec3::Z)
-        );
-        assert_ulps_eq!(pzx.to_moment(&sz).magnitude(), 0.);
+        assert_ulps_eq!(pyz.to_moment(&vx, &q0).magnitude(), 0.);
+        assert_ulps_eq!(pyz.to_moment(&vy, &q0).magnitude(), 0.);
+        assert_ulps_eq!(pyz.to_moment(&vz, &q0).force, Force(Vec3::NEG_Z * EXP));
+        assert_ulps_eq!(pyz.to_moment(&vz, &q0).torque, Torque(Vec3::NEG_X * EXP));
+
+        assert_ulps_eq!(pzx.to_moment(&vx, &q0).force, Force(Vec3::NEG_X * EXP));
+        assert_ulps_eq!(pzx.to_moment(&vx, &q0).torque, Torque(Vec3::NEG_Y * EXP));
+        assert_ulps_eq!(pzx.to_moment(&vy, &q0).magnitude(), 0.);
+        assert_ulps_eq!(pzx.to_moment(&vz, &q0).magnitude(), 0.);
     }
 }
