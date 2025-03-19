@@ -12,8 +12,8 @@ mod linear_momentum;
 
 /// Represents momentum with linear and angular components.
 ///
-/// Encapsulates translational momentum [`Momentum::linear`] and rotational momentum
-/// [`Momentum::angular`] for a strongly typed representation of momentum.
+/// Encapsulates translational momentum [Momentum::linear] and rotational momentum
+/// [Momentum::angular] for a strongly typed representation of momentum.
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Momentum {
     /// Linear momentum component.
@@ -26,7 +26,7 @@ impl Momentum {
     /// Zero momentum constant (no momentum).
     pub const ZERO: Self = Self::new(LinMom::ZERO, AngMom::ZERO);
 
-    /// Constructs a new [`Momentum`] from given linear and angular momenta.
+    /// Constructs a new [Momentum] from given linear and angular momenta.
     #[inline]
     #[must_use]
     pub const fn new(lin: LinMom, ang: AngMom) -> Self {
@@ -47,21 +47,21 @@ impl Momentum {
         Self::new(LinMom::ZERO, v)
     }
 
-    /// Constructs a [`Momentum`] from raw vector representations of linear and angular momentum.
+    /// Constructs a [Momentum] from raw vector representations of linear and angular momentum.
     #[inline]
     #[must_use]
     pub const fn from_vec3s(lin: Vec3, ang: Vec3) -> Self {
         Self::new(LinMom::from_vec3(lin), AngMom::from_vec3(ang))
     }
 
-    /// Constructs a [`Momentum`] from a raw vector representing only linear momentum.
+    /// Constructs a [Momentum] from a raw vector representing only linear momentum.
     #[inline]
     #[must_use]
     pub const fn from_linear_vec3(v: Vec3) -> Self {
         Self::from_vec3s(v, Vec3::ZERO)
     }
 
-    /// Constructs a [`Momentum`] from a raw vector representing only angular momentum.
+    /// Constructs a [Momentum] from a raw vector representing only angular momentum.
     #[inline]
     #[must_use]
     pub const fn from_angular_vec3(v: Vec3) -> Self {
@@ -69,7 +69,7 @@ impl Momentum {
     }
 }
 
-/// Conversion implementations to create [`Momentum`] from individual components.
+/// Conversion implementations to create [Momentum] from individual components.
 impl From<LinMom> for Momentum {
     #[inline]
     #[must_use]
@@ -86,7 +86,7 @@ impl From<AngMom> for Momentum {
     }
 }
 
-/// Implements summation over an iterator of [`Momentum`] values.
+/// Implements summation over an iterator of [Momentum] values.
 impl Sum for Momentum {
     #[inline]
     #[must_use]

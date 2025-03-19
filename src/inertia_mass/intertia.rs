@@ -16,7 +16,7 @@ impl Inertia {
     /// * `mass` - The mass of the cylinder.
     ///
     /// # Returns
-    /// An [`Inertia<Local>`] object representing the cylinder.
+    /// An [Inertia] object representing the cylinder.
     #[inline]
     #[must_use]
     pub const fn cylinder_x(height: f64, radius: f64, mass: f64) -> Self {
@@ -42,7 +42,7 @@ impl Inertia {
     /// * `mass` - The mass of the cylinder.
     ///
     /// # Returns
-    /// An [`Inertia<Local>`] object representing the cylinder.
+    /// An [Inertia] object representing the cylinder.
     #[inline]
     #[must_use]
     pub const fn cylinder_y(height: f64, radius: f64, mass: f64) -> Self {
@@ -68,7 +68,7 @@ impl Inertia {
     /// * `mass` - The mass of the cylinder.
     ///
     /// # Returns
-    /// An [`Inertia<Local>`] object representing the cylinder.
+    /// An [Inertia] object representing the cylinder.
     #[inline]
     #[must_use]
     pub const fn cylinder_z(height: f64, radius: f64, mass: f64) -> Self {

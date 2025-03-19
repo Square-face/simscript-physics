@@ -10,7 +10,7 @@ use super::Transform;
 
 /// Represents a 3D translation vector.
 ///
-/// This struct encapsulates a displacement in 3D space using a [`Vec3`] (double-precision 3D vector).
+/// This struct encapsulates a displacement in 3D space using a [Vec3] (double-precision 3D vector).
 /// It provides constructors, utility methods, and operator overloads for manipulating translation vectors.
 #[cfg_attr(feature = "approx", derive(Approx))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
@@ -34,63 +34,63 @@ impl Translation {
     /// Unit translation in the negative Z direction.
     pub const NEG_Z: Self = Self::from_z(-1.);
 
-    /// Creates a new [`Translation`] from individual components.
+    /// Creates a new [Translation] from individual components.
     #[inline]
     #[must_use]
     pub const fn new(x: f64, y: f64, z: f64) -> Self {
         Self(Vec3::new(x, y, z))
     }
 
-    /// Creates a [`Translation`] from an existing [`Vec3`].
+    /// Creates a [Translation] from an existing [Vec3].
     #[inline]
     #[must_use]
     pub const fn from_vec3(v: Vec3) -> Self {
         Self(v)
     }
 
-    /// Creates a [`Translation`] with all components set to the same value.
+    /// Creates a [Translation] with all components set to the same value.
     #[inline]
     #[must_use]
     pub const fn splat(v: f64) -> Self {
         Self::new(v, v, v)
     }
 
-    /// Creates a [`Translation`] along the X-axis.
+    /// Creates a [Translation] along the X-axis.
     #[inline]
     #[must_use]
     pub const fn from_x(x: f64) -> Self {
         Self::new(x, 0., 0.)
     }
 
-    /// Creates a [`Translation`] along the Y-axis.
+    /// Creates a [Translation] along the Y-axis.
     #[inline]
     #[must_use]
     pub const fn from_y(y: f64) -> Self {
         Self::new(0., y, 0.)
     }
 
-    /// Creates a [`Translation`] along the Z-axis.
+    /// Creates a [Translation] along the Z-axis.
     #[inline]
     #[must_use]
     pub const fn from_z(z: f64) -> Self {
         Self::new(0., 0., z)
     }
 
-    /// Returns a new [`Translation`] with the given X component, keeping Y and Z the same.
+    /// Returns a new [Translation] with the given X component, keeping Y and Z the same.
     #[inline]
     #[must_use]
     pub const fn with_x(&self, x: f64) -> Self {
         Self::new(x, self.0.y, self.0.z)
     }
 
-    /// Returns a new [`Translation`] with the given Y component, keeping X and Z the same.
+    /// Returns a new [Translation] with the given Y component, keeping X and Z the same.
     #[inline]
     #[must_use]
     pub const fn with_y(&self, y: f64) -> Self {
         Self::new(self.0.x, y, self.0.z)
     }
 
-    /// Returns a new [`Translation`] with the given Z component, keeping X and Y the same.
+    /// Returns a new [Translation] with the given Z component, keeping X and Y the same.
     #[inline]
     #[must_use]
     pub const fn with_z(&self, z: f64) -> Self {
@@ -98,7 +98,7 @@ impl Translation {
     }
 }
 
-/// Implements conversion from [`Vec3`] to [`Translation`].
+/// Implements conversion from [Vec3] to [Translation].
 impl From<Vec3> for Translation {
     #[inline]
     #[must_use]
@@ -107,7 +107,7 @@ impl From<Vec3> for Translation {
     }
 }
 
-/// Implements conversion from [`Translation`] to [`Vec3`].
+/// Implements conversion from [Translation] to [Vec3].
 impl From<Translation> for Vec3 {
     #[inline]
     #[must_use]
@@ -116,7 +116,7 @@ impl From<Translation> for Vec3 {
     }
 }
 
-/// Implements conversion from [`Transform`] to [`Translation`].
+/// Implements conversion from [Transform] to [Translation].
 impl From<Transform> for Translation {
     #[inline]
     #[must_use]

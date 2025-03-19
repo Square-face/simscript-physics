@@ -16,8 +16,8 @@ mod linear_velocity;
 
 /// Represents a velocity with both linear and angular components.
 /// 
-/// This struct encapsulates translational velocity [`Velocity::linear`] and rotational velocity
-/// [`Velocity::angular`] for a strongly typed representation of velocity making operations and
+/// This struct encapsulates translational velocity [Velocity::linear] and rotational velocity
+/// [Velocity::angular] for a strongly typed representation of velocity making operations and
 /// transform explicit.
 #[cfg_attr(feature = "approx", derive(Approx))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
@@ -79,7 +79,7 @@ impl Velocity {
 }
 
 impl Velocity {
-    /// Scales the velocity by a time duration in seconds, returning a [`Transform`].
+    /// Scales the velocity by a time duration in seconds, returning a [Transform].
     /// 
     /// This effectively calculates the displacement that would occur over `rhs` seconds.
     #[inline]
@@ -88,9 +88,9 @@ impl Velocity {
         Transform::new(self.linear.mul_secs(rhs), self.angular.mul_secs(rhs))
     }
 
-    /// Scales the velocity by a [`Duration`], returning a [`Transform`].
+    /// Scales the velocity by a [Duration], returning a [Transform].
     /// 
-    /// Internally, this calls [`Velocity::mul_secs`] using [`Duration::as_secs_f64`].
+    /// Internally, this calls [Velocity::mul_secs] using [Duration::as_secs_f64].
     /// If performance is critical, directly calling `mul_secs` may be preferable.
     #[inline]
     #[must_use]

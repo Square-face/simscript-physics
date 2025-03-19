@@ -11,7 +11,7 @@ use crate::momentum::AngMom;
 
 /// Torque in 3D space.
 ///
-/// This struct wraps a [`Vec3`] to provide a strongly typed representation of torque,
+/// This struct wraps a [Vec3] to provide a strongly typed representation of torque,
 /// making operations and transformations explicit.
 #[cfg_attr(feature = "approx", derive(Approx))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
@@ -38,42 +38,42 @@ impl Torque {
     /// Unit torque in the negative Z direction.
     pub const NEG_Z: Self = Self::with_z(-1.);
 
-    /// Creates a new [`Torque`] with the specified `x`, `y`, and `z` components.
+    /// Creates a new [Torque] with the specified `x`, `y`, and `z` components.
     #[inline]
     #[must_use]
     pub const fn new(x: f64, y: f64, z: f64) -> Self {
         Self(Vec3::new(x, y, z))
     }
 
-    /// Creates a [`Torque`] from an existing [`Vec3`].
+    /// Creates a [Torque] from an existing [Vec3].
     #[inline]
     #[must_use]
     pub const fn from_vec3(v: Vec3) -> Self {
         Self(v)
     }
 
-    /// Creates a [`Torque`] where all components are set to `v`.
+    /// Creates a [Torque] where all components are set to `v`.
     #[inline]
     #[must_use]
     pub const fn splat(v: f64) -> Self {
         Self::new(v, v, v)
     }
 
-    /// Creates a [`Torque`] with only the X component set.
+    /// Creates a [Torque] with only the X component set.
     #[inline]
     #[must_use]
     pub const fn with_x(x: f64) -> Self {
         Self::new(x, 0., 0.)
     }
 
-    /// Creates a [`Torque`] with only the Y component set.
+    /// Creates a [Torque] with only the Y component set.
     #[inline]
     #[must_use]
     pub const fn with_y(y: f64) -> Self {
         Self::new(0., y, 0.)
     }
 
-    /// Creates a [`Torque`] with only the Z component set.
+    /// Creates a [Torque] with only the Z component set.
     #[inline]
     #[must_use]
     pub const fn with_z(z: f64) -> Self {
@@ -82,17 +82,17 @@ impl Torque {
 }
 
 impl Torque {
-    /// Scales the torque by a time duration in seconds, returning an [`AngMom`].
+    /// Scales the torque by a time duration in seconds, returning an [AngMom].
     #[inline]
     #[must_use]
     pub fn mul_secs(&self, rhs: f64) -> AngMom {
         AngMom(self.0 * rhs)
     }
 
-    /// Scales the torque by a [`Duration`], returning an [`AngMom`].
+    /// Scales the torque by a [Duration], returning an [AngMom].
     ///
-    /// Note: this function uses [`Torque::mul_secs`] internally. For performance-critical code,
-    /// consider using [`Torque::mul_secs`] directly to avoid [`Duration::as_secs_f64`] overhead.
+    /// Note: this function uses [Torque::mul_secs] internally. For performance-critical code,
+    /// consider using [Torque::mul_secs] directly to avoid [Duration::as_secs_f64] overhead.
     #[inline]
     #[must_use]
     pub fn mul_dur(&self, rhs: &Duration) -> AngMom {

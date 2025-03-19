@@ -44,7 +44,7 @@ impl AngMom {
         Self(Vec3::new(x, y, z))
     }
 
-    /// Creates a new angular momentum from a [`Vec3`].
+    /// Creates a new angular momentum from a [Vec3].
     #[inline]
     #[must_use]
     pub const fn from_vec3(v: Vec3) -> Self {
@@ -80,7 +80,7 @@ impl AngMom {
     }
 }
 
-/// Converts a [`Vec3`] into an [`AngMom`].
+/// Converts a [Vec3] into an [AngMom].
 impl From<Vec3> for AngMom {
     #[inline]
     #[must_use]
@@ -89,7 +89,7 @@ impl From<Vec3> for AngMom {
     }
 }
 
-/// Converts an [`AngMom`] into a [`Vec3`].
+/// Converts an [AngMom] into a [Vec3].
 impl From<AngMom> for Vec3 {
     #[inline]
     #[must_use]
@@ -98,7 +98,7 @@ impl From<AngMom> for Vec3 {
     }
 }
 
-/// Extracts angular momentum from a [`Momentum`].
+/// Extracts angular momentum from a [Momentum].
 impl From<Momentum> for AngMom {
     #[inline]
     #[must_use]
@@ -107,7 +107,7 @@ impl From<Momentum> for AngMom {
     }
 }
 
-/// Sums an iterator of [`AngMom`] values.
+/// Sums an iterator of [AngMom] values.
 impl Sum for AngMom {
     #[inline]
     #[must_use]

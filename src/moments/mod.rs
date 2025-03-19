@@ -17,8 +17,8 @@ mod torque;
 
 /// Represents a moment with force and torque components.
 ///
-/// Encapsulates translational force [`Moment::force`] and rotational torque
-/// [`Moment::torque`] for a strongly typed representation of moment.
+/// Encapsulates translational force [Moment::force] and rotational torque
+/// [Moment::torque] for a strongly typed representation of moment.
 #[cfg_attr(feature = "approx", derive(Approx))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Moment {
@@ -32,7 +32,7 @@ impl Moment {
     /// Zero moment constant (no force or torque).
     pub const ZERO: Self = Self::new(Force::ZERO, Torque::ZERO);
 
-    /// Constructs a new [`Moment`] from given force and torque.
+    /// Constructs a new [Moment] from given force and torque.
     #[inline]
     #[must_use]
     pub const fn new(force: Force, torque: Torque) -> Self {
@@ -53,28 +53,28 @@ impl Moment {
         Self::new(Force::ZERO, torque)
     }
 
-    /// Constructs a [`Moment`] from raw vector representations of force and torque.
+    /// Constructs a [Moment] from raw vector representations of force and torque.
     #[inline]
     #[must_use]
     pub const fn from_vec3s(force: Vec3, torque: Vec3) -> Self {
         Self::new(Force::from_vec3(force), Torque::from_vec3(torque))
     }
 
-    /// Constructs a [`Moment`] from a raw vector representing only force.
+    /// Constructs a [Moment] from a raw vector representing only force.
     #[inline]
     #[must_use]
     pub const fn from_force_vec3(v: Vec3) -> Self {
         Self::from_vec3s(v, Vec3::ZERO)
     }
 
-    /// Constructs a [`Moment`] from a raw vector representing only torque.
+    /// Constructs a [Moment] from a raw vector representing only torque.
     #[inline]
     #[must_use]
     pub const fn from_torque_vec3(v: Vec3) -> Self {
         Self::from_vec3s(Vec3::ZERO, v)
     }
 
-    /// Constructs a [`Moment`] from a force and an offset, computing torque as their cross product.
+    /// Constructs a [Moment] from a force and an offset, computing torque as their cross product.
     #[inline]
     #[must_use]
     pub fn from_force_and_offset(force: Force, offset: Vec3) -> Self {
@@ -91,14 +91,14 @@ impl Moment {
 }
 
 impl Moment {
-    /// Scales the moment by a time duration in seconds, returning a [`Momentum`].
+    /// Scales the moment by a time duration in seconds, returning a [Momentum].
     #[inline]
     #[must_use]
     pub fn mul_secs(&self, rhs: f64) -> Momentum {
         Momentum::new(self.force.mul_secs(rhs), self.torque.mul_secs(rhs))
     }
 
-    /// Scales the moment by a [`Duration`], returning a [`Momentum`].
+    /// Scales the moment by a [Duration], returning a [Momentum].
     #[inline]
     #[must_use]
     pub fn mul_dur(&self, rhs: &Duration) -> Momentum {
@@ -106,7 +106,7 @@ impl Moment {
     }
 }
 
-/// Conversion implementations to create [`Moment`] from individual components.
+/// Conversion implementations to create [Moment] from individual components.
 impl From<Force> for Moment {
     #[inline]
     #[must_use]
@@ -123,7 +123,7 @@ impl From<Torque> for Moment {
     }
 }
 
-/// Implements summation over an iterator of [`Moment`] values.
+/// Implements summation over an iterator of [Moment] values.
 impl Sum for Moment {
     #[inline]
     #[must_use]

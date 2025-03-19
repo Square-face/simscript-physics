@@ -43,7 +43,7 @@ impl LinMom {
         Self(Vec3::new(x, y, z))
     }
 
-    /// Creates a new linear momentum from a [`Vec3`].
+    /// Creates a new linear momentum from a [Vec3].
     #[inline]
     #[must_use]
     pub const fn from_vec3(v: Vec3) -> Self {
@@ -80,14 +80,14 @@ impl LinMom {
 }
 
 impl LinMom {
-    /// Converts to a [`Momentum`] with zero angular momentum.
+    /// Converts to a [Momentum] with zero angular momentum.
     #[inline]
     #[must_use]
     pub const fn to_vel(self) -> Momentum {
         Momentum::new(self, AngMom::ZERO)
     }
 
-    /// Combines with angular momentum to create a [`Momentum`].
+    /// Combines with angular momentum to create a [Momentum].
     #[inline]
     #[must_use]
     pub const fn with_angular(self, ang: AngMom) -> Momentum {
@@ -95,7 +95,7 @@ impl LinMom {
     }
 }
 
-/// Converts a [`Vec3`] into a [`LinMom`].
+/// Converts a [Vec3] into a [LinMom].
 impl From<Vec3> for LinMom {
     #[inline]
     #[must_use]
@@ -104,7 +104,7 @@ impl From<Vec3> for LinMom {
     }
 }
 
-/// Converts a [`LinMom`] into a [`Vec3`].
+/// Converts a [LinMom] into a [Vec3].
 impl From<LinMom> for Vec3 {
     #[inline]
     #[must_use]
@@ -113,7 +113,7 @@ impl From<LinMom> for Vec3 {
     }
 }
 
-/// Extracts linear momentum from a [`Momentum`].
+/// Extracts linear momentum from a [Momentum].
 impl From<Momentum> for LinMom {
     #[inline]
     #[must_use]
@@ -122,7 +122,7 @@ impl From<Momentum> for LinMom {
     }
 }
 
-/// Sums an iterator of [`LinMom`] values.
+/// Sums an iterator of [LinMom] values.
 impl Sum for LinMom {
     #[inline]
     #[must_use]

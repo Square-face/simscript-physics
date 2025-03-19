@@ -13,7 +13,7 @@ use super::{LinVel, Velocity};
 
 /// Angular velocity in 3D space.
 ///
-/// This struct wraps a [`Vec3`] to provide a strongly typed representation of angular velocity,
+/// This struct wraps a [Vec3] to provide a strongly typed representation of angular velocity,
 /// making operations and transformations explicit.
 #[cfg_attr(feature = "approx", derive(Approx))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
@@ -40,42 +40,42 @@ impl AngVel {
     /// Unit angular velocity in the negative Z direction.
     pub const NEG_Z: Self = Self::with_z(-1.);
 
-    /// Creates a new [`AngVel`] with the specified `x`, `y`, and `z` components.
+    /// Creates a new [AngVel] with the specified `x`, `y`, and `z` components.
     #[inline]
     #[must_use]
     pub const fn new(x: f64, y: f64, z: f64) -> Self {
         Self(Vec3::new(x, y, z))
     }
 
-    /// Creates a [`AngVel`] from an existing [`Vec3`].
+    /// Creates a [AngVel] from an existing [Vec3].
     #[inline]
     #[must_use]
     pub const fn from_vec3(v: Vec3) -> Self {
         Self(v)
     }
 
-    /// Creates a [`AngVel`] where all components are set to `v`.
+    /// Creates a [AngVel] where all components are set to `v`.
     #[inline]
     #[must_use]
     pub const fn splat(v: f64) -> Self {
         Self::new(v, v, v)
     }
 
-    /// Creates a [`AngVel`] with only the X component set.
+    /// Creates a [AngVel] with only the X component set.
     #[inline]
     #[must_use]
     pub const fn with_x(x: f64) -> Self {
         Self::new(x, 0., 0.)
     }
 
-    /// Creates a [`AngVel`] with only the Y component set.
+    /// Creates a [AngVel] with only the Y component set.
     #[inline]
     #[must_use]
     pub const fn with_y(y: f64) -> Self {
         Self::new(0., y, 0.)
     }
 
-    /// Creates a [`AngVel`] with only the Z component set.
+    /// Creates a [AngVel] with only the Z component set.
     #[inline]
     #[must_use]
     pub const fn with_z(z: f64) -> Self {
@@ -84,7 +84,7 @@ impl AngVel {
 }
 
 impl AngVel {
-    /// Scales the velocity by a time duration in seconds, returning a [`Rotation`].
+    /// Scales the velocity by a time duration in seconds, returning a [Rotation].
     #[inline]
     #[must_use]
     pub fn mul_secs(&self, rhs: f64) -> Rotation {
@@ -92,9 +92,9 @@ impl AngVel {
         Rotation::new(Quat::from_scaled_axis(delta))
     }
 
-    /// Scales the velocity by a [`Duration`] returning a [`Rotation`].
+    /// Scales the velocity by a [Duration] returning a [Rotation].
     ///
-    /// Note: this function uses [`AngVel::mul_secs`] internally, if performance is of the essence,
+    /// Note: this function uses [AngVel::mul_secs] internally, if performance is of the essence,
     /// it might be a good idea to use it directly to avoid unnecessary [Duration::as_secs_f64]
     /// calls
     #[inline]
@@ -103,14 +103,14 @@ impl AngVel {
         self.mul_secs(rhs.as_secs_f64())
     }
 
-    /// Converts [`AngVel`] into a [`Velocity`] with zero angular velocity.
+    /// Converts [AngVel] into a [Velocity] with zero angular velocity.
     #[inline]
     #[must_use]
     pub const fn to_vel(self) -> Velocity {
         Velocity::new(LinVel::ZERO, self)
     }
 
-    /// Creates a [`Velocity`] from [`AngVel`] with a specified angular velocity.
+    /// Creates a [Velocity] from [AngVel] with a specified angular velocity.
     #[inline]
     #[must_use]
     pub const fn with_linear(self, lin: LinVel) -> Velocity {
