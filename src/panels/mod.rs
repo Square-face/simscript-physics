@@ -5,54 +5,61 @@ use crate::{
     velocity::{AngVel, LinVel, Velocity},
 };
 
+/// Represents a simulated "aerodynamic" panel.
+/// 
+/// Used to heavily approximate the effects of aerodynamics on a simulated entity
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Panel {
+    /// Position relative to origin.
     pub offset: Vec3,
+    /// Direction the panel faces.
     pub normal: Vec3,
+    /// Surface area of the panel.
     pub area: f64,
 }
 
+/// Air density (kg/m³).
 const DENSITY: f64 = 1.293;
+/// Half of drag coefficient.
 const HALF_C_D: f64 = 1.28 / 2.;
 
 impl Panel {
+    /// Creates a new panel with given offset, normal, and area.
     pub fn new(offset: Vec3, normal: Vec3, area: f64) -> Self {
-        Self {
-            offset,
-            normal,
-            area,
-        }
+        Self { offset, normal, area }
     }
 
+    /// Calculates aerodynamic force based on relative velocity.
     pub fn to_force(&self, rel_vel: &LinVel) -> Force {
         let area = self.normal.dot(rel_vel.0.normalize_or_zero()) * self.area;
-
         Force::from_vec3(DENSITY * rel_vel.0.length_squared() * HALF_C_D * area * -self.normal)
     }
 
+    /// Returns a new panel rotated by the given quaternion.
     pub fn rotated(&self, rot: &Quat) -> Self {
         let offset = rot.mul_vec3(self.offset);
         let normal = rot.mul_vec3(self.normal);
-
         Self::new(offset, normal, self.area)
     }
 
+    /// Computes linear velocity at the panel due to angular velocity.
     pub fn rotation_based_velocity(&self, vel: &AngVel) -> LinVel {
         LinVel(vel.0.cross(self.offset))
     }
 
+    /// Calculates total velocity at the panel's tip from combined linear and angular velocity.
     pub fn tip_velocity(&self, vel: &Velocity) -> LinVel {
         let linear = vel.linear.0;
         let angular = self.rotation_based_velocity(&vel.angular);
         LinVel(linear) + angular
     }
 
+    /// Computes the moment the panel would induce on the simulated entity given a certain
+    /// orientation and relative wind speed
     pub fn to_moment(&self, vel: &Velocity, rot: &Quat) -> Moment {
         let rotated = self.rotated(rot);
         let vel = rotated.tip_velocity(vel);
-
         let force = rotated.to_force(&vel);
-
         Moment::from_force_and_offset(force, rotated.offset)
     }
 }
