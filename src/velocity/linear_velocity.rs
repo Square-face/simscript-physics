@@ -5,58 +5,147 @@ use approx_derive::Approx;
 
 use glam::DVec3 as Vec3;
 use overload::overload;
-use std::{ops, time::Duration};
+use std::{iter::Sum, ops, time::Duration};
 
 use crate::transform::Translation;
 
+use super::{AngVel, Velocity};
+
+/// Linear velocity in 3D space.
+///
+/// This struct wraps a [Vec3] to provide a strongly typed representation of linear velocity,
+/// making operations and transformations explicit.
 #[cfg_attr(feature = "approx", derive(Approx))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct LinVel(pub Vec3);
 
 impl LinVel {
-    pub const ZERO: Self = Self::from_vec3(Vec3::ZERO);
-    pub const X: Self = Self::from_vec3(Vec3::X);
-    pub const Y: Self = Self::from_vec3(Vec3::Y);
-    pub const Z: Self = Self::from_vec3(Vec3::Z);
+    /// A zero linear velocity vector.
+    pub const ZERO: Self = Self::splat(0.);
 
-    pub const NEG_X: Self = Self::from_vec3(Vec3::NEG_X);
-    pub const NEG_Y: Self = Self::from_vec3(Vec3::NEG_Y);
-    pub const NEG_Z: Self = Self::from_vec3(Vec3::NEG_Z);
+    /// Linear velocity of magnitude one in all directions.
+    pub const ONE: Self = Self::splat(1.);
 
+    /// Unit linear velocity in the positive X direction.
+    pub const X: Self = Self::with_x(1.);
+    /// Unit linear velocity in the positive Y direction.
+    pub const Y: Self = Self::with_y(1.);
+    /// Unit linear velocity in the positive Z direction.
+    pub const Z: Self = Self::with_z(1.);
+
+    /// Unit linear velocity in the negative X direction.
+    pub const NEG_X: Self = Self::with_x(-1.);
+    /// Unit linear velocity in the negative Y direction.
+    pub const NEG_Y: Self = Self::with_y(-1.);
+    /// Unit linear velocity in the negative Z direction.
+    pub const NEG_Z: Self = Self::with_z(-1.);
+
+    /// Creates a new [LinVel] with the specified `x`, `y`, and `z` components.
+    #[inline]
+    #[must_use]
     pub const fn new(x: f64, y: f64, z: f64) -> Self {
         Self(Vec3::new(x, y, z))
     }
 
-    pub const fn splat(v: f64) -> Self {
-        Self(Vec3::splat(v))
-    }
-
-    pub const fn with_x(x: f64) -> Self {
-        Self(Vec3::new(x, 0., 0.))
-    }
-
-    pub const fn with_y(y: f64) -> Self {
-        Self(Vec3::new(0., y, 0.))
-    }
-
-    pub const fn with_z(z: f64) -> Self {
-        Self(Vec3::new(0., 0., z))
-    }
-
+    /// Creates a [LinVel] from an existing [Vec3].
+    #[inline]
+    #[must_use]
     pub const fn from_vec3(v: Vec3) -> Self {
         Self(v)
+    }
+
+    /// Creates a [LinVel] where all components are set to `v`.
+    #[inline]
+    #[must_use]
+    pub const fn splat(v: f64) -> Self {
+        Self::new(v, v, v)
+    }
+
+    /// Creates a [LinVel] with only the X component set.
+    #[inline]
+    #[must_use]
+    pub const fn with_x(x: f64) -> Self {
+        Self::new(x, 0., 0.)
+    }
+
+    /// Creates a [LinVel] with only the Y component set.
+    #[inline]
+    #[must_use]
+    pub const fn with_y(y: f64) -> Self {
+        Self::new(0., y, 0.)
+    }
+
+    /// Creates a [LinVel] with only the Z component set.
+    #[inline]
+    #[must_use]
+    pub const fn with_z(z: f64) -> Self {
+        Self::new(0., 0., z)
+    }
+}
+
+impl LinVel {
+    /// Scales the velocity by a time duration in seconds, returning a [Translation].
+    #[inline]
+    #[must_use]
+    pub fn mul_secs(&self, rhs: f64) -> Translation {
+        Translation::from_vec3(self.0 * rhs)
+    }
+
+    /// Scales the velocity by a [Duration] returning a [Translation].
+    ///
+    /// Note: this function uses [LinVel::mul_secs] internally, if performance is of the essence,
+    /// it might be a good idea to use it directly to avoid unnecessary [Duration::as_secs_f64]
+    /// calls
+    #[inline]
+    #[must_use]
+    pub fn mul_dur(&self, rhs: &Duration) -> Translation {
+        self.mul_secs(rhs.as_secs_f64())
+    }
+
+    /// Converts [LinVel] into a [Velocity] with zero angular velocity.
+    #[inline]
+    #[must_use]
+    pub const fn to_vel(self) -> Velocity {
+        Velocity::new(self, AngVel::ZERO)
+    }
+
+    /// Creates a [Velocity] from [LinVel] with a specified angular velocity.
+    #[inline]
+    #[must_use]
+    pub const fn with_angular(self, ang: AngVel) -> Velocity {
+        Velocity::new(self, ang)
     }
 }
 
 impl From<Vec3> for LinVel {
+    #[inline]
+    #[must_use]
     fn from(value: Vec3) -> Self {
         Self::from_vec3(value)
     }
 }
 
 impl From<LinVel> for Vec3 {
+    #[inline]
+    #[must_use]
     fn from(value: LinVel) -> Self {
         value.0
+    }
+}
+
+impl From<Velocity> for LinVel {
+    #[inline]
+    #[must_use]
+    fn from(value: Velocity) -> Self {
+        value.linear
+    }
+}
+
+impl Sum for LinVel {
+    #[inline]
+    #[must_use]
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::ZERO, |a, b| a + b)
     }
 }
 
@@ -70,7 +159,8 @@ overload!((a: ?LinVel) / (b: f64) -> LinVel{ LinVel( a.0 / b ) });
 overload!((a: &mut LinVel) *= (b: f64) { a.0 *= b });
 overload!((a: &mut LinVel) /= (b: f64) { a.0 /= b });
 
-overload!((a: ?LinVel) * (b: ?Duration) -> Translation{ Translation(a.0 * b.as_secs_f64()) });
+overload!((a: ?LinVel) * (b: Duration) -> Translation{ a.mul_dur(&b) });
+overload!((a: ?LinVel) * (b: &Duration) -> Translation{ a.mul_dur(b) });
 
 overload!(-(a: ?LinVel) -> LinVel{ LinVel( -a.0 ) });
 

@@ -7,23 +7,34 @@ pub use angular_velocity::AngVel;
 use glam::DVec3 as Vec3;
 pub use linear_velocity::LinVel;
 use overload::overload;
-use std::{ops, time::Duration};
+use std::{iter::Sum, ops, time::Duration};
 
 use crate::transform::Transform;
 
 mod angular_velocity;
 mod linear_velocity;
 
+/// Represents a velocity with both linear and angular components.
+/// 
+/// This struct encapsulates translational velocity [Velocity::linear] and rotational velocity
+/// [Velocity::angular] for a strongly typed representation of velocity making operations and
+/// transform explicit.
 #[cfg_attr(feature = "approx", derive(Approx))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Velocity {
+    /// Linear velocity component.
     pub linear: LinVel,
+    /// Angular velocity component.
     pub angular: AngVel,
 }
 
 impl Velocity {
+    /// Zero velocity constant (no motion).
     pub const ZERO: Self = Self::new(LinVel::ZERO, AngVel::ZERO);
 
+    /// Constructs a new `Velocity` from given linear and angular velocities.
+    #[inline]
+    #[must_use]
     pub const fn new(lin: LinVel, ang: AngVel) -> Self {
         Self {
             linear: lin,
@@ -31,28 +42,86 @@ impl Velocity {
         }
     }
 
-    pub const fn from_lin(v: LinVel) -> Self {
+    /// Creates a velocity with only a linear component.
+    #[inline]
+    #[must_use]
+    pub const fn from_linear(v: LinVel) -> Self {
         Self::new(v, AngVel::ZERO)
     }
 
-    pub const fn from_ang(v: AngVel) -> Self {
+    /// Creates a velocity with only an angular component.
+    #[inline]
+    #[must_use]
+    pub const fn from_angular(v: AngVel) -> Self {
         Self::new(LinVel::ZERO, v)
     }
 
+    /// Constructs a `Velocity` from raw vector representations of linear and angular velocity.
+    #[inline]
+    #[must_use]
     pub const fn from_vec3s(lin: Vec3, ang: Vec3) -> Self {
         Self::new(LinVel::from_vec3(lin), AngVel::from_vec3(ang))
     }
+
+    /// Constructs a `Velocity` from a raw vector representing only linear velocity.
+    #[inline]
+    #[must_use]
+    pub const fn from_linear_vec3(v: Vec3) -> Self {
+        Self::from_vec3s(v, Vec3::ZERO)
+    }
+
+    /// Constructs a `Velocity` from a raw vector representing only angular velocity.
+    #[inline]
+    #[must_use]
+    pub const fn from_angular_vec3(v: Vec3) -> Self {
+        Self::from_vec3s(Vec3::ZERO, v)
+    }
 }
 
+impl Velocity {
+    /// Scales the velocity by a time duration in seconds, returning a [Transform].
+    /// 
+    /// This effectively calculates the displacement that would occur over `rhs` seconds.
+    #[inline]
+    #[must_use]
+    pub fn mul_secs(&self, rhs: f64) -> Transform {
+        Transform::new(self.linear.mul_secs(rhs), self.angular.mul_secs(rhs))
+    }
+
+    /// Scales the velocity by a [Duration], returning a [Transform].
+    /// 
+    /// Internally, this calls [Velocity::mul_secs] using [Duration::as_secs_f64].
+    /// If performance is critical, directly calling [Velocity::mul_secs] may be preferable.
+    #[inline]
+    #[must_use]
+    pub fn mul_dur(&self, rhs: &Duration) -> Transform {
+        self.mul_secs(rhs.as_secs_f64())
+    }
+}
+
+/// Conversion implementations to create `Velocity` from individual components.
 impl From<LinVel> for Velocity {
+    #[inline]
+    #[must_use]
     fn from(value: LinVel) -> Self {
-        Self::from_lin(value)
+        Self::from_linear(value)
     }
 }
 
 impl From<AngVel> for Velocity {
+    #[inline]
+    #[must_use]
     fn from(value: AngVel) -> Self {
-        Self::from_ang(value)
+        Self::from_angular(value)
+    }
+}
+
+/// Implements summation over an iterator of `Velocity` values.
+impl Sum for Velocity {
+    #[inline]
+    #[must_use]
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Self::ZERO, |a, b| a + b)
     }
 }
 
@@ -88,8 +157,8 @@ mod constructors {
         let lv = LinVel::new(54.76, 11.08, 92.23);
         let av = AngVel::new(82.86, 5.21, 61.19);
 
-        let v1 = Velocity::from_lin(lv);
-        let v2 = Velocity::from_ang(av);
+        let v1 = Velocity::from_linear(lv);
+        let v2 = Velocity::from_angular(av);
 
         assert_ulps_eq!(v1.linear, lv);
         assert_ulps_eq!(v1.angular, AngVel::ZERO);

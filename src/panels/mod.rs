@@ -5,54 +5,61 @@ use crate::{
     velocity::{AngVel, LinVel, Velocity},
 };
 
+/// Represents a simulated "aerodynamic" panel.
+/// 
+/// Used to heavily approximate the effects of aerodynamics on a simulated entity
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Panel {
+    /// Position relative to origin.
     pub offset: Vec3,
+    /// Direction the panel faces.
     pub normal: Vec3,
+    /// Surface area of the panel.
     pub area: f64,
 }
 
+/// Air density (kg/m³).
 const DENSITY: f64 = 1.293;
+/// Half of drag coefficient.
 const HALF_C_D: f64 = 1.28 / 2.;
 
 impl Panel {
+    /// Creates a new panel with given offset, normal, and area.
     pub fn new(offset: Vec3, normal: Vec3, area: f64) -> Self {
-        Self {
-            offset,
-            normal,
-            area,
-        }
+        Self { offset, normal, area }
     }
 
+    /// Calculates aerodynamic force based on relative velocity.
     pub fn to_force(&self, rel_vel: &LinVel) -> Force {
         let area = self.normal.dot(rel_vel.0.normalize_or_zero()) * self.area;
-
-        Force::new(DENSITY * rel_vel.0.length_squared() * HALF_C_D * area * -self.normal)
+        Force::from_vec3(DENSITY * rel_vel.0.length_squared() * HALF_C_D * area * -self.normal)
     }
 
+    /// Returns a new panel rotated by the given quaternion.
     pub fn rotated(&self, rot: &Quat) -> Self {
         let offset = rot.mul_vec3(self.offset);
         let normal = rot.mul_vec3(self.normal);
-
         Self::new(offset, normal, self.area)
     }
 
+    /// Computes linear velocity at the panel due to angular velocity.
     pub fn rotation_based_velocity(&self, vel: &AngVel) -> LinVel {
         LinVel(vel.0.cross(self.offset))
     }
 
+    /// Calculates total velocity at the panel's tip from combined linear and angular velocity.
     pub fn tip_velocity(&self, vel: &Velocity) -> LinVel {
         let linear = vel.linear.0;
         let angular = self.rotation_based_velocity(&vel.angular);
         LinVel(linear) + angular
     }
 
+    /// Computes the moment the panel would induce on the simulated entity given a certain
+    /// orientation and relative wind speed
     pub fn to_moment(&self, vel: &Velocity, rot: &Quat) -> Moment {
         let rotated = self.rotated(rot);
         let vel = rotated.tip_velocity(vel);
-
         let force = rotated.to_force(&vel);
-
         Moment::from_force_and_offset(force, rotated.offset)
     }
 }
@@ -366,9 +373,9 @@ mod to_force {
 
         let (lx, ly, lz) = xyz_linvel();
 
-        assert_ulps_eq!(p1.to_force(&lx), Force::new(Vec3::NEG_X * EXP));
-        assert_ulps_eq!(p2.to_force(&ly), Force::new(Vec3::NEG_Y * EXP));
-        assert_ulps_eq!(p3.to_force(&lz), Force::new(Vec3::NEG_Z * EXP));
+        assert_ulps_eq!(p1.to_force(&lx), Force::NEG_X * EXP);
+        assert_ulps_eq!(p2.to_force(&ly), Force::NEG_Y * EXP);
+        assert_ulps_eq!(p3.to_force(&lz), Force::NEG_Z * EXP);
     }
 
     #[test]
@@ -379,9 +386,9 @@ mod to_force {
         let p2 = Panel::new(Vec3::X, Vec3::Y, 1.);
         let p3 = Panel::new(Vec3::Z, Vec3::Y, 1.);
 
-        assert_ulps_eq!(p1.to_force(&v1), Force::new(Vec3::NEG_Y * EXP));
-        assert_ulps_eq!(p2.to_force(&v1), Force::new(Vec3::NEG_Y * EXP));
-        assert_ulps_eq!(p3.to_force(&v1), Force::new(Vec3::NEG_Y * EXP));
+        assert_ulps_eq!(p1.to_force(&v1), Force::NEG_Y * EXP);
+        assert_ulps_eq!(p2.to_force(&v1), Force::NEG_Y * EXP);
+        assert_ulps_eq!(p3.to_force(&v1), Force::NEG_Y * EXP);
     }
 
     #[test]
@@ -394,7 +401,7 @@ mod to_force {
 
         assert_ulps_eq!(
             p1.to_force(&v1),
-            Force::new(Vec3::new(-1., -1., 0.).normalize() * exp)
+            Force::from_vec3(Vec3::new(-1., -1., 0.).normalize() * exp)
         );
     }
 }
@@ -425,11 +432,7 @@ mod to_moment {
         let pz = Panel::new(Vec3::ZERO, Vec3::Z, 1.);
 
         let (lx, ly, lz) = xyz_linvel();
-        let (vx, vy, vz) = (
-            Velocity::from_lin(lx),
-            Velocity::from_lin(ly),
-            Velocity::from_lin(lz),
-        );
+        let (vx, vy, vz) = (lx.to_vel(), ly.to_vel(), lz.to_vel());
 
         assert_ulps_eq!(
             px.to_moment(&vx, &q0),
@@ -462,11 +465,7 @@ mod to_moment {
         let pzx = Panel::new(Vec3::Z, Vec3::X, 1.);
 
         let (lx, ly, lz) = xyz_linvel();
-        let (vx, vy, vz) = (
-            Velocity::from_lin(lx),
-            Velocity::from_lin(ly),
-            Velocity::from_lin(lz),
-        );
+        let (vx, vy, vz) = (lx.to_vel(), ly.to_vel(), lz.to_vel());
 
         assert_ulps_eq!(pxy.to_moment(&vx, &q0).magnitude(), 0.);
         assert_ulps_eq!(pxy.to_moment(&vy, &q0).force, Force(Vec3::NEG_Y * EXP));
