@@ -1,16 +1,18 @@
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 #[cfg(feature = "approx")]
-use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-#[cfg(feature = "approx")]
-use approx_derive::Approx;
+use {
+    approx::{AbsDiffEq, RelativeEq, UlpsEq},
+    approx_derive::Approx,
+};
 
+use crate::momentum::Momentum;
 use glam::DVec3 as Vec3;
 use overload::overload;
 use std::{iter::Sum, ops, time::Duration};
 
 pub use force::Force;
 pub use torque::Torque;
-
-use crate::momentum::Momentum;
 
 mod force;
 mod torque;
@@ -20,6 +22,7 @@ mod torque;
 /// Encapsulates translational force [Moment::force] and rotational torque
 /// [Moment::torque] for a strongly typed representation of moment.
 #[cfg_attr(feature = "approx", derive(Approx))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Moment {
     /// Linear force component.
@@ -146,4 +149,3 @@ overload!(-(a: ?Moment) -> Moment { Moment::new(-a.force, -a.torque) });
 
 overload!((a: ?Moment) * (b: Duration) -> Momentum { a.mul_dur(&b) });
 overload!((a: ?Moment) * (b: &Duration) -> Momentum { a.mul_dur(b) });
-

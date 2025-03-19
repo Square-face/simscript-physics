@@ -1,14 +1,19 @@
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 use glam::{DMat3 as Mat3, DQuat as Quat};
-pub use intertia::Inertia;
-pub use mass::Mass;
 
 mod intertia;
 mod mass;
+
+pub use intertia::Inertia;
+pub use mass::Mass;
 
 /// An entity's mass and how its distributed
 ///
 /// Contains one [Mass] and two [Inertia], one of which is always inverted to eliminate the need
 /// to recalculate every time the inverse tensor is required
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct InertiaMass {
     pub mass: Mass,

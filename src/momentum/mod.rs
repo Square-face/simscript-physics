@@ -1,11 +1,19 @@
+#[cfg(feature = "approx")]
+use {
+    approx::{AbsDiffEq, RelativeEq, UlpsEq},
+    approx_derive::Approx,
+};
+
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
+use crate::{inertia_mass::InertiaMass, velocity::Velocity};
 use glam::DVec3 as Vec3;
 use overload::overload;
 use std::{iter::Sum, ops};
 
 pub use angular_momentum::AngMom;
 pub use linear_momentum::LinMom;
-
-use crate::{inertia_mass::InertiaMass, velocity::Velocity};
 
 mod angular_momentum;
 mod linear_momentum;
@@ -14,6 +22,8 @@ mod linear_momentum;
 ///
 /// Encapsulates translational momentum [Momentum::linear] and rotational momentum
 /// [Momentum::angular] for a strongly typed representation of momentum.
+#[cfg_attr(feature = "approx", derive(Approx))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Momentum {
     /// Linear momentum component.
