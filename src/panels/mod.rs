@@ -27,7 +27,7 @@ impl Panel {
     pub fn to_force(&self, rel_vel: &LinVel) -> Force {
         let area = self.normal.dot(rel_vel.0.normalize_or_zero()) * self.area;
 
-        Force::new(DENSITY * rel_vel.0.length_squared() * HALF_C_D * area * -self.normal)
+        Force::from_vec3(DENSITY * rel_vel.0.length_squared() * HALF_C_D * area * -self.normal)
     }
 
     pub fn rotated(&self, rot: &Quat) -> Self {
@@ -366,9 +366,9 @@ mod to_force {
 
         let (lx, ly, lz) = xyz_linvel();
 
-        assert_ulps_eq!(p1.to_force(&lx), Force::new(Vec3::NEG_X * EXP));
-        assert_ulps_eq!(p2.to_force(&ly), Force::new(Vec3::NEG_Y * EXP));
-        assert_ulps_eq!(p3.to_force(&lz), Force::new(Vec3::NEG_Z * EXP));
+        assert_ulps_eq!(p1.to_force(&lx), Force::NEG_X * EXP);
+        assert_ulps_eq!(p2.to_force(&ly), Force::NEG_Y * EXP);
+        assert_ulps_eq!(p3.to_force(&lz), Force::NEG_Z * EXP);
     }
 
     #[test]
@@ -379,9 +379,9 @@ mod to_force {
         let p2 = Panel::new(Vec3::X, Vec3::Y, 1.);
         let p3 = Panel::new(Vec3::Z, Vec3::Y, 1.);
 
-        assert_ulps_eq!(p1.to_force(&v1), Force::new(Vec3::NEG_Y * EXP));
-        assert_ulps_eq!(p2.to_force(&v1), Force::new(Vec3::NEG_Y * EXP));
-        assert_ulps_eq!(p3.to_force(&v1), Force::new(Vec3::NEG_Y * EXP));
+        assert_ulps_eq!(p1.to_force(&v1), Force::NEG_Y * EXP);
+        assert_ulps_eq!(p2.to_force(&v1), Force::NEG_Y * EXP);
+        assert_ulps_eq!(p3.to_force(&v1), Force::NEG_Y * EXP);
     }
 
     #[test]
@@ -394,7 +394,7 @@ mod to_force {
 
         assert_ulps_eq!(
             p1.to_force(&v1),
-            Force::new(Vec3::new(-1., -1., 0.).normalize() * exp)
+            Force::from_vec3(Vec3::new(-1., -1., 0.).normalize() * exp)
         );
     }
 }
