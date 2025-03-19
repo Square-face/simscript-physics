@@ -1,5 +1,9 @@
 use glam::{DMat3 as Mat3, DQuat as Quat};
 
+/// The mass distribution of an object.
+///
+/// Represents how the mass of an object is distributed, used to calculate rotational velocity from
+/// momentum. Uses a [Mat3] internally.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Inertia(pub Mat3);
 
@@ -86,11 +90,37 @@ impl Inertia {
         ]))
     }
 
+    /// Rotates the inertia using a quaternion
+    ///
+    /// # Arguments
+    /// * `rot` - How to rotate the tensor
+    ///
+    /// # Returns
+    /// An [Inertia] that has been rotated
     pub fn rotated(&self, rot: Quat) -> Self {
         self.rot_mat(Mat3::from_quat(rot))
     }
 
+    /// Rotates the inertia using a rotation matrix
+    ///
+    /// # Arguments
+    /// * `rot` - How to rotate the tensor
+    ///
+    /// # Returns
+    /// An [Inertia] that has been rotated
     pub fn rot_mat(&self, rot: Mat3) -> Self {
         Self::new(rot * self.0 * rot.transpose())
+    }
+}
+
+impl From<Mat3> for Inertia {
+    fn from(value: Mat3) -> Self {
+        Self::new(value)
+    }
+}
+
+impl From<Inertia> for Mat3 {
+    fn from(value: Inertia) -> Self {
+        value.0
     }
 }

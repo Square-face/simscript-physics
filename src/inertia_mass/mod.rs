@@ -5,11 +5,10 @@ pub use mass::Mass;
 mod intertia;
 mod mass;
 
-/// Represents the mass and its distribution in an entity
+/// An entity's mass and how its distributed
 ///
-/// # Units
-/// mass: kg
-/// inertia: tensor based on kg
+/// Contains one [Mass] and two [Inertia], one of which is always inverted to eliminate the need
+/// to recalculate every time the inverse tensor is required
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct InertiaMass {
     pub mass: Mass,
@@ -26,10 +25,14 @@ impl InertiaMass {
         }
     }
 
+    /// Rotates the mass using a [Quat]
+    ///
+    /// If performance is critical, directly calling [InertiaMass::rot_mat] may be preferable
     pub fn rotated(&self, rot: Quat) -> Self {
         Self::new(self.mass, self.inertia.rotated(rot))
     }
 
+    /// Rotates the mass using a [Mat3]
     pub fn rot_mat(&self, rot: Mat3) -> Self {
         Self::new(self.mass, self.inertia.rot_mat(rot))
     }

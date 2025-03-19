@@ -1,6 +1,6 @@
 use glam::DVec3 as Vec3;
 use overload::overload;
-use std::{iter::Sum, ops, time::Duration};
+use std::{iter::Sum, ops};
 
 pub use angular_momentum::AngMom;
 pub use linear_momentum::LinMom;
@@ -30,7 +30,10 @@ impl Momentum {
     #[inline]
     #[must_use]
     pub const fn new(lin: LinMom, ang: AngMom) -> Self {
-        Self { linear: lin, angular: ang }
+        Self {
+            linear: lin,
+            angular: ang,
+        }
     }
 
     /// Creates momentum with only a linear component.

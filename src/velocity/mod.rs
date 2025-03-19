@@ -91,7 +91,7 @@ impl Velocity {
     /// Scales the velocity by a [Duration], returning a [Transform].
     /// 
     /// Internally, this calls [Velocity::mul_secs] using [Duration::as_secs_f64].
-    /// If performance is critical, directly calling `mul_secs` may be preferable.
+    /// If performance is critical, directly calling [Velocity::mul_secs] may be preferable.
     #[inline]
     #[must_use]
     pub fn mul_dur(&self, rhs: &Duration) -> Transform {
