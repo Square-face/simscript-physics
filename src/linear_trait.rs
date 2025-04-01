@@ -1,6 +1,6 @@
 use glam::DVec3 as Vec3;
 
-pub trait LinVec {
+pub trait Vec3Wrap {
     /// A zero vector.
     const ZERO: Self;
 
@@ -89,7 +89,7 @@ mod tests {
     struct MockVec(pub Vec3);
 
     // Mock implementation
-    impl LinVec for MockVec {
+    impl Vec3Wrap for MockVec {
         const ZERO: Self = MockVec(Vec3::new(0.0, 0.0, 0.0));
         const ONE: Self = MockVec(Vec3::new(1.0, 1.0, 1.0));
         const X: Self = MockVec(Vec3::new(1.0, 0.0, 0.0));

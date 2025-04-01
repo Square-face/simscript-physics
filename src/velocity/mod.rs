@@ -9,7 +9,7 @@ pub use linear_velocity::LinVel;
 use overload::overload;
 use std::{iter::Sum, ops, time::Duration};
 
-use crate::{linear_trait::LinVec as _, transform::Transform};
+use crate::{linear_trait::Vec3Wrap as _, transform::Transform};
 
 mod angular_velocity;
 mod linear_velocity;

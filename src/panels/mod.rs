@@ -71,7 +71,7 @@ impl Panel {
 #[cfg(test)]
 mod test_utils {
 
-    use crate::linear_trait::LinVec as _;
+    use crate::linear_trait::Vec3Wrap as _;
 
     use super::*;
     use std::f64::consts::PI;
@@ -202,7 +202,7 @@ mod rotated {
 mod rotation_based_velocity {
 
     use super::*;
-    use crate::linear_trait::LinVec as _;
+    use crate::linear_trait::Vec3Wrap as _;
     use approx::assert_ulps_eq;
     use test_utils::*;
 
@@ -272,7 +272,7 @@ mod rotation_based_velocity {
 #[cfg(test)]
 mod relative_velocity {
     use super::*;
-    use crate::linear_trait::LinVec as _;
+    use crate::linear_trait::Vec3Wrap as _;
     use crate::velocity::AngVel;
     use approx::assert_ulps_eq;
     use test_utils::*;
@@ -352,7 +352,7 @@ mod relative_velocity {
 mod to_force {
     use std::f64::consts::PI;
 
-    use crate::linear_trait::LinVec as _;
+    use crate::linear_trait::Vec3Wrap as _;
     use super::*;
     use approx::assert_ulps_eq;
     use test_utils::*;

@@ -7,7 +7,7 @@ use glam::DVec3 as Vec3;
 use overload::overload;
 use std::{iter::Sum, ops, time::Duration};
 
-use crate::{linear_trait::LinVec, transform::Translation};
+use crate::{linear_trait::Vec3Wrap, transform::Translation};
 
 use super::{AngVel, Velocity};
 
@@ -19,7 +19,7 @@ use super::{AngVel, Velocity};
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct LinVel(pub Vec3);
 
-impl LinVec for LinVel {
+impl Vec3Wrap for LinVel {
     const ZERO: Self = Self(Vec3::ZERO);
     const ONE: Self = Self(Vec3::ONE);
 
