@@ -5,7 +5,7 @@ use std::{iter::Sum, ops};
 pub use angular_momentum::AngMom;
 pub use linear_momentum::LinMom;
 
-use crate::{inertia_mass::InertiaMass, velocity::Velocity};
+use crate::{inertia_mass::InertiaMass, linear_trait::Vec3Wrap as _, velocity::Velocity};
 
 mod angular_momentum;
 mod linear_momentum;
@@ -54,7 +54,7 @@ impl Momentum {
     #[inline]
     #[must_use]
     pub const fn from_vec3s(lin: Vec3, ang: Vec3) -> Self {
-        Self::new(LinMom::from_vec3(lin), AngMom::from_vec3(ang))
+        Self::new(LinMom(lin), AngMom::from_vec3(ang))
     }
 
     /// Constructs a [Momentum] from a raw vector representing only linear momentum.

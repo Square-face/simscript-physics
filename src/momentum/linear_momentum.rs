@@ -7,7 +7,7 @@ use glam::DVec3 as Vec3;
 use overload::overload;
 use std::{iter::Sum, ops};
 
-use crate::{inertia_mass::Mass, velocity::LinVel};
+use crate::{inertia_mass::Mass, linear_trait::Vec3Wrap, velocity::LinVel};
 
 use super::{AngMom, Momentum};
 
@@ -16,66 +16,22 @@ use super::{AngMom, Momentum};
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct LinMom(pub Vec3);
 
-impl LinMom {
-    /// Zero momentum constant.
-    pub const ZERO: Self = Self::splat(0.);
-    /// Unit momentum constant (all components 1).
-    pub const ONE: Self = Self::splat(1.);
+impl Vec3Wrap for LinMom {
+    const ZERO: Self = Self(Vec3::ZERO);
+    const ONE: Self = Self(Vec3::ONE);
 
-    /// Unit momentum along X axis.
-    pub const X: Self = Self::with_x(1.);
-    /// Unit momentum along Y axis.
-    pub const Y: Self = Self::with_y(1.);
-    /// Unit momentum along Z axis.
-    pub const Z: Self = Self::with_z(1.);
+    const X: Self = Self(Vec3::X);
+    const Y: Self = Self(Vec3::Y);
+    const Z: Self = Self(Vec3::Z);
 
-    /// Negative unit momentum along X axis.
-    pub const NEG_X: Self = Self::with_x(-1.);
-    /// Negative unit momentum along Y axis.
-    pub const NEG_Y: Self = Self::with_y(-1.);
-    /// Negative unit momentum along Z axis.
-    pub const NEG_Z: Self = Self::with_z(-1.);
+    const NEG_X: Self = Self(Vec3::NEG_X);
+    const NEG_Y: Self = Self(Vec3::NEG_Y);
+    const NEG_Z: Self = Self(Vec3::NEG_Z);
 
-    /// Creates a new linear momentum from x, y, z components.
     #[inline]
     #[must_use]
-    pub const fn new(x: f64, y: f64, z: f64) -> Self {
-        Self(Vec3::new(x, y, z))
-    }
-
-    /// Creates a new linear momentum from a [Vec3].
-    #[inline]
-    #[must_use]
-    pub const fn from_vec3(v: Vec3) -> Self {
+    fn from_vec3(v: Vec3) -> Self {
         Self(v)
-    }
-
-    /// Creates a new linear momentum with all components set to `v`.
-    #[inline]
-    #[must_use]
-    pub const fn splat(v: f64) -> Self {
-        Self::new(v, v, v)
-    }
-
-    /// Creates a new linear momentum with x component set to `x`, others zero.
-    #[inline]
-    #[must_use]
-    pub const fn with_x(x: f64) -> Self {
-        Self::new(x, 0., 0.)
-    }
-
-    /// Creates a new linear momentum with y component set to `y`, others zero.
-    #[inline]
-    #[must_use]
-    pub const fn with_y(y: f64) -> Self {
-        Self::new(0., y, 0.)
-    }
-
-    /// Creates a new linear momentum with z component set to `z`, others zero.
-    #[inline]
-    #[must_use]
-    pub const fn with_z(z: f64) -> Self {
-        Self::new(0., 0., z)
     }
 }
 
