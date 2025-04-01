@@ -4,7 +4,7 @@
 #[cfg(feature = "approx")]
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 #[cfg(feature = "approx")]
-use approx_derive::Approx;
+use derives::Approx;
 
 use glam::DQuat as Quat;
 use overload::overload;

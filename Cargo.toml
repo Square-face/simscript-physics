@@ -4,13 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [workspace]
-members = ["approx_derive"]
+members = ["derives"]
 
 [dependencies]
 glam = "0.29.2"
 overload = "0.1.1"
 approx = { version = "0.5.1", optional = true }
-approx_derive = { path = "./approx_derive", optional = true }
+derives = { path = "./derives", optional = true }
 
 [dev-dependencies]
 color-eyre = "0.6"
@@ -19,7 +19,7 @@ rstest_reuse = "0.7.0"
 ctor = "0.4.1"
 glam = { version = "0.29.2", features = ["approx"] }
 approx = { version = "0.5.1" }
-approx_derive = { path = "./approx_derive" }
+derives = { path = "./derives" }
 
 [profile.dev.package.backtrace]
 opt-level = 3
@@ -27,6 +27,6 @@ opt-level = 3
 
 [features]
 strict_asserts = ["glam/glam-assert"]
-approx = ["glam/approx", "dep:approx", "dep:approx_derive"]
+approx = ["glam/approx", "dep:approx", "dep:derives"]
 
 default = ["approx"]

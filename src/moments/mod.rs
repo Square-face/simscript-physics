@@ -1,7 +1,7 @@
 #[cfg(feature = "approx")]
 use approx::{AbsDiffEq, RelativeEq, UlpsEq};
 #[cfg(feature = "approx")]
-use approx_derive::Approx;
+use derives::Approx;
 
 use glam::DVec3 as Vec3;
 use overload::overload;
