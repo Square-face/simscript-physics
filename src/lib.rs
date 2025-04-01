@@ -5,6 +5,7 @@ use moments::Moment;
 use momentum::Momentum;
 use panels::Panel;
 use transform::Transform;
+use velocity::Velocity;
 
 pub mod inertia_mass;
 pub mod moments;
@@ -14,8 +15,8 @@ pub mod transform;
 pub mod velocity;
 
 mod builder;
+mod linear_trait;
 pub use builder::StateBuilder;
-use velocity::Velocity;
 
 /// Represents the kinetic state of a simulated entity
 #[derive(Debug, Clone, PartialEq)]
@@ -57,8 +58,7 @@ impl State {
 }
 
 /// Time step functions
-impl State{
-
+impl State {
     /// Steps the state forward by a [Duration] using the Forward Euler method
     ///
     /// The Euler method is much simpler than Runge Kutta 4 and requires less compute per
@@ -69,7 +69,6 @@ impl State{
         let velocity = self.momentum / self.mass.rotated(self.transform.rotation.0);
         self.transform += velocity * time;
     }
-
 
     /// Steps the state forward by a [Duration] using the Runge Kutta 4 method
     ///
