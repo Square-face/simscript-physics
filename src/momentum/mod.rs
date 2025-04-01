@@ -54,7 +54,7 @@ impl Momentum {
     #[inline]
     #[must_use]
     pub const fn from_vec3s(lin: Vec3, ang: Vec3) -> Self {
-        Self::new(LinMom(lin), AngMom::from_vec3(ang))
+        Self::new(LinMom(lin), AngMom(ang))
     }
 
     /// Constructs a [Momentum] from a raw vector representing only linear momentum.
