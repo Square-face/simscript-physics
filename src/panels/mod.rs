@@ -352,8 +352,8 @@ mod relative_velocity {
 mod to_force {
     use std::f64::consts::PI;
 
-    use crate::linear_trait::Vec3Wrap as _;
     use super::*;
+    use crate::linear_trait::Vec3Wrap as _;
     use approx::assert_ulps_eq;
     use test_utils::*;
 

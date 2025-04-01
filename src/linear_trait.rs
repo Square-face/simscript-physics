@@ -105,11 +105,11 @@ mod tests {
     }
 
     #[rstest]
-    #[case(MockVec::ZERO,   MockVec::new(0.0, 0.0, 0.0))]
-    #[case(MockVec::ONE,    MockVec::new(1.0, 1.0, 1.0))]
-    #[case(MockVec::X,      MockVec::new(1.0, 0.0, 0.0))]
-    #[case(MockVec::Y,      MockVec::new(0.0, 1.0, 0.0))]
-    #[case(MockVec::Z,      MockVec::new(0.0, 0.0, 1.0))]
+    #[case(MockVec::ZERO, MockVec::new(0.0, 0.0, 0.0))]
+    #[case(MockVec::ONE, MockVec::new(1.0, 1.0, 1.0))]
+    #[case(MockVec::X, MockVec::new(1.0, 0.0, 0.0))]
+    #[case(MockVec::Y, MockVec::new(0.0, 1.0, 0.0))]
+    #[case(MockVec::Z, MockVec::new(0.0, 0.0, 1.0))]
     #[case(MockVec::NEG_X,  MockVec::new(-1.0, 0.0, 0.0))]
     #[case(MockVec::NEG_Y,  MockVec::new(0.0, -1.0, 0.0))]
     #[case(MockVec::NEG_Z,  MockVec::new(0.0, 0.0, -1.0))]

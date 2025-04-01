@@ -5,8 +5,8 @@ use derives::Approx;
 
 use glam::DVec3 as Vec3;
 use overload::overload;
-use std::ops;
 use std::iter::Sum;
+use std::ops;
 
 use crate::{inertia_mass::Inertia, velocity::AngVel};
 

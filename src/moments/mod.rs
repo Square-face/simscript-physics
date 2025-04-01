@@ -146,4 +146,3 @@ overload!(-(a: ?Moment) -> Moment { Moment::new(-a.force, -a.torque) });
 
 overload!((a: ?Moment) * (b: Duration) -> Momentum { a.mul_dur(&b) });
 overload!((a: ?Moment) * (b: &Duration) -> Momentum { a.mul_dur(b) });
-

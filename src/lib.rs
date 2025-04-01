@@ -8,12 +8,12 @@ use transform::Transform;
 use velocity::Velocity;
 
 pub mod inertia_mass;
+pub mod linear_trait;
 pub mod moments;
 pub mod momentum;
 pub mod panels;
 pub mod transform;
 pub mod velocity;
-pub mod linear_trait;
 
 mod builder;
 pub use builder::StateBuilder;
