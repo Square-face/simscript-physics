@@ -7,7 +7,7 @@ use glam::{DQuat as Quat, DVec3 as Vec3};
 use overload::overload;
 use std::{iter::Sum, ops, time::Duration};
 
-use crate::{linear_trait::LinVec as _, transform::Rotation};
+use crate::{linear_trait::LinVec, transform::Rotation};
 
 use super::{LinVel, Velocity};
 
@@ -19,67 +19,22 @@ use super::{LinVel, Velocity};
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct AngVel(pub Vec3);
 
-impl AngVel {
-    /// A zero angular velocity vector.
-    pub const ZERO: Self = Self::splat(0.);
+impl LinVec for AngVel {
+    const ZERO: Self = Self(Vec3::ZERO);
+    const ONE: Self = Self(Vec3::ONE);
 
-    /// Angular velocity of magnitude one in all directions.
-    pub const ONE: Self = Self::splat(1.);
+    const X: Self = Self(Vec3::X);
+    const Y: Self = Self(Vec3::Y);
+    const Z: Self = Self(Vec3::Z);
 
-    /// Unit angular velocity in the positive X direction.
-    pub const X: Self = Self::with_x(1.);
-    /// Unit angular velocity in the positive Y direction.
-    pub const Y: Self = Self::with_y(1.);
-    /// Unit angular velocity in the positive Z direction.
-    pub const Z: Self = Self::with_z(1.);
+    const NEG_X: Self = Self(Vec3::NEG_X);
+    const NEG_Y: Self = Self(Vec3::NEG_Y);
+    const NEG_Z: Self = Self(Vec3::NEG_Z);
 
-    /// Unit angular velocity in the negative X direction.
-    pub const NEG_X: Self = Self::with_x(-1.);
-    /// Unit angular velocity in the negative Y direction.
-    pub const NEG_Y: Self = Self::with_y(-1.);
-    /// Unit angular velocity in the negative Z direction.
-    pub const NEG_Z: Self = Self::with_z(-1.);
-
-    /// Creates a new [AngVel] with the specified `x`, `y`, and `z` components.
     #[inline]
     #[must_use]
-    pub const fn new(x: f64, y: f64, z: f64) -> Self {
-        Self(Vec3::new(x, y, z))
-    }
-
-    /// Creates a [AngVel] from an existing [Vec3].
-    #[inline]
-    #[must_use]
-    pub const fn from_vec3(v: Vec3) -> Self {
+    fn from_vec3(v: Vec3) -> Self {
         Self(v)
-    }
-
-    /// Creates a [AngVel] where all components are set to `v`.
-    #[inline]
-    #[must_use]
-    pub const fn splat(v: f64) -> Self {
-        Self::new(v, v, v)
-    }
-
-    /// Creates a [AngVel] with only the X component set.
-    #[inline]
-    #[must_use]
-    pub const fn with_x(x: f64) -> Self {
-        Self::new(x, 0., 0.)
-    }
-
-    /// Creates a [AngVel] with only the Y component set.
-    #[inline]
-    #[must_use]
-    pub const fn with_y(y: f64) -> Self {
-        Self::new(0., y, 0.)
-    }
-
-    /// Creates a [AngVel] with only the Z component set.
-    #[inline]
-    #[must_use]
-    pub const fn with_z(z: f64) -> Self {
-        Self::new(0., 0., z)
     }
 }
 
@@ -163,45 +118,6 @@ overload!((a: &mut AngVel) *= (b: f64) { a.0 *= b });
 overload!((a: &mut AngVel) /= (b: f64) { a.0 /= b });
 
 overload!(-(a: ?AngVel) -> AngVel{ AngVel( -a.0 ) });
-
-#[cfg(test)]
-mod constructors {
-    use approx::assert_ulps_eq;
-
-    use super::*;
-
-    #[test]
-    fn new_splat_fromvec3() {
-        assert_ulps_eq!(
-            AngVel::new(64.54, 77.86, 2.77).0,
-            Vec3::new(64.54, 77.86, 2.77)
-        );
-        assert_ulps_eq!(AngVel::splat(61.07).0, Vec3::new(61.07, 61.07, 61.07));
-
-        let v = Vec3::new(12.57, 22.66, 58.90);
-        assert_ulps_eq!(AngVel::from_vec3(v).0, v);
-    }
-
-    #[test]
-    fn with() {
-        assert_ulps_eq!(AngVel::with_x(66.60).0, Vec3::new(66.60, 0., 0.));
-        assert_ulps_eq!(AngVel::with_y(76.75).0, Vec3::new(0., 76.75, 0.));
-        assert_ulps_eq!(AngVel::with_z(21.58).0, Vec3::new(0., 0., 21.58));
-    }
-
-    #[test]
-    fn consts() {
-        assert_ulps_eq!(AngVel::ZERO, AngVel::splat(0.));
-
-        assert_ulps_eq!(AngVel::X, AngVel::with_x(1.));
-        assert_ulps_eq!(AngVel::Y, AngVel::with_y(1.));
-        assert_ulps_eq!(AngVel::Z, AngVel::with_z(1.));
-
-        assert_ulps_eq!(AngVel::NEG_X, AngVel::with_x(-1.));
-        assert_ulps_eq!(AngVel::NEG_Y, AngVel::with_y(-1.));
-        assert_ulps_eq!(AngVel::NEG_Z, AngVel::with_z(-1.));
-    }
-}
 
 #[cfg(test)]
 mod arithmetic {

@@ -60,7 +60,7 @@ impl Velocity {
     #[inline]
     #[must_use]
     pub const fn from_vec3s(lin: Vec3, ang: Vec3) -> Self {
-        Self::new(LinVel(lin), AngVel::from_vec3(ang))
+        Self::new(LinVel(lin), AngVel(ang))
     }
 
     /// Constructs a `Velocity` from a raw vector representing only linear velocity.
