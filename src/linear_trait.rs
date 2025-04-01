@@ -22,6 +22,8 @@ pub trait LinVec {
     const NEG_Z: Self;
 
     /// Creates a new instance with the specified `x`, `y`, and `z` components.
+    #[inline]
+    #[must_use]
     fn new(x: f64, y: f64, z: f64) -> Self
     where
         Self: std::marker::Sized,
@@ -30,9 +32,12 @@ pub trait LinVec {
     }
 
     /// Creates an instance from an existing vector type.
+    #[must_use]
     fn from_vec3(v: Vec3) -> Self;
 
     /// Creates an instance where all components are set to `v`.
+    #[inline]
+    #[must_use]
     fn splat(v: f64) -> Self
     where
         Self: std::marker::Sized,
@@ -41,6 +46,8 @@ pub trait LinVec {
     }
 
     /// Creates an instance with only the X component set.
+    #[inline]
+    #[must_use]
     fn with_x(x: f64) -> Self
     where
         Self: std::marker::Sized,
@@ -49,6 +56,8 @@ pub trait LinVec {
     }
 
     /// Creates an instance with only the Y component set.
+    #[inline]
+    #[must_use]
     fn with_y(y: f64) -> Self
     where
         Self: std::marker::Sized,
@@ -57,6 +66,8 @@ pub trait LinVec {
     }
 
     /// Creates an instance with only the Z component set.
+    #[inline]
+    #[must_use]
     fn with_z(z: f64) -> Self
     where
         Self: std::marker::Sized,

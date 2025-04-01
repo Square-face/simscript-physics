@@ -9,13 +9,13 @@ pub use linear_velocity::LinVel;
 use overload::overload;
 use std::{iter::Sum, ops, time::Duration};
 
-use crate::transform::Transform;
+use crate::{linear_trait::LinVec as _, transform::Transform};
 
 mod angular_velocity;
 mod linear_velocity;
 
 /// Represents a velocity with both linear and angular components.
-/// 
+///
 /// This struct encapsulates translational velocity [Velocity::linear] and rotational velocity
 /// [Velocity::angular] for a strongly typed representation of velocity making operations and
 /// transform explicit.
@@ -60,7 +60,7 @@ impl Velocity {
     #[inline]
     #[must_use]
     pub const fn from_vec3s(lin: Vec3, ang: Vec3) -> Self {
-        Self::new(LinVel::from_vec3(lin), AngVel::from_vec3(ang))
+        Self::new(LinVel(lin), AngVel::from_vec3(ang))
     }
 
     /// Constructs a `Velocity` from a raw vector representing only linear velocity.
@@ -80,7 +80,7 @@ impl Velocity {
 
 impl Velocity {
     /// Scales the velocity by a time duration in seconds, returning a [Transform].
-    /// 
+    ///
     /// This effectively calculates the displacement that would occur over `rhs` seconds.
     #[inline]
     #[must_use]
@@ -89,7 +89,7 @@ impl Velocity {
     }
 
     /// Scales the velocity by a [Duration], returning a [Transform].
-    /// 
+    ///
     /// Internally, this calls [Velocity::mul_secs] using [Duration::as_secs_f64].
     /// If performance is critical, directly calling [Velocity::mul_secs] may be preferable.
     #[inline]

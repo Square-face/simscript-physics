@@ -7,7 +7,7 @@ use glam::{DQuat as Quat, DVec3 as Vec3};
 use overload::overload;
 use std::{iter::Sum, ops, time::Duration};
 
-use crate::transform::Rotation;
+use crate::{linear_trait::LinVec as _, transform::Rotation};
 
 use super::{LinVel, Velocity};
 

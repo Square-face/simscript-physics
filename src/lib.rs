@@ -13,9 +13,9 @@ pub mod momentum;
 pub mod panels;
 pub mod transform;
 pub mod velocity;
+pub mod linear_trait;
 
 mod builder;
-mod linear_trait;
 pub use builder::StateBuilder;
 
 /// Represents the kinetic state of a simulated entity

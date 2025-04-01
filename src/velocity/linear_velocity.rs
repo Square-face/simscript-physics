@@ -7,7 +7,7 @@ use glam::DVec3 as Vec3;
 use overload::overload;
 use std::{iter::Sum, ops, time::Duration};
 
-use crate::transform::Translation;
+use crate::{linear_trait::LinVec, transform::Translation};
 
 use super::{AngVel, Velocity};
 
@@ -19,67 +19,22 @@ use super::{AngVel, Velocity};
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct LinVel(pub Vec3);
 
-impl LinVel {
-    /// A zero linear velocity vector.
-    pub const ZERO: Self = Self::splat(0.);
+impl LinVec for LinVel {
+    const ZERO: Self = Self(Vec3::ZERO);
+    const ONE: Self = Self(Vec3::ONE);
 
-    /// Linear velocity of magnitude one in all directions.
-    pub const ONE: Self = Self::splat(1.);
+    const X: Self = Self(Vec3::X);
+    const Y: Self = Self(Vec3::Y);
+    const Z: Self = Self(Vec3::Z);
 
-    /// Unit linear velocity in the positive X direction.
-    pub const X: Self = Self::with_x(1.);
-    /// Unit linear velocity in the positive Y direction.
-    pub const Y: Self = Self::with_y(1.);
-    /// Unit linear velocity in the positive Z direction.
-    pub const Z: Self = Self::with_z(1.);
+    const NEG_X: Self = Self(Vec3::NEG_X);
+    const NEG_Y: Self = Self(Vec3::NEG_Y);
+    const NEG_Z: Self = Self(Vec3::NEG_Z);
 
-    /// Unit linear velocity in the negative X direction.
-    pub const NEG_X: Self = Self::with_x(-1.);
-    /// Unit linear velocity in the negative Y direction.
-    pub const NEG_Y: Self = Self::with_y(-1.);
-    /// Unit linear velocity in the negative Z direction.
-    pub const NEG_Z: Self = Self::with_z(-1.);
-
-    /// Creates a new [LinVel] with the specified `x`, `y`, and `z` components.
     #[inline]
     #[must_use]
-    pub const fn new(x: f64, y: f64, z: f64) -> Self {
-        Self(Vec3::new(x, y, z))
-    }
-
-    /// Creates a [LinVel] from an existing [Vec3].
-    #[inline]
-    #[must_use]
-    pub const fn from_vec3(v: Vec3) -> Self {
+    fn from_vec3(v: Vec3) -> Self {
         Self(v)
-    }
-
-    /// Creates a [LinVel] where all components are set to `v`.
-    #[inline]
-    #[must_use]
-    pub const fn splat(v: f64) -> Self {
-        Self::new(v, v, v)
-    }
-
-    /// Creates a [LinVel] with only the X component set.
-    #[inline]
-    #[must_use]
-    pub const fn with_x(x: f64) -> Self {
-        Self::new(x, 0., 0.)
-    }
-
-    /// Creates a [LinVel] with only the Y component set.
-    #[inline]
-    #[must_use]
-    pub const fn with_y(y: f64) -> Self {
-        Self::new(0., y, 0.)
-    }
-
-    /// Creates a [LinVel] with only the Z component set.
-    #[inline]
-    #[must_use]
-    pub const fn with_z(z: f64) -> Self {
-        Self::new(0., 0., z)
     }
 }
 
@@ -163,42 +118,6 @@ overload!((a: ?LinVel) * (b: Duration) -> Translation{ a.mul_dur(&b) });
 overload!((a: ?LinVel) * (b: &Duration) -> Translation{ a.mul_dur(b) });
 
 overload!(-(a: ?LinVel) -> LinVel{ LinVel( -a.0 ) });
-
-#[cfg(test)]
-mod constructors {
-    use super::*;
-    use approx::assert_ulps_eq;
-
-    #[test]
-    fn new() {
-        assert_ulps_eq!(LinVel::new(1., 2., 3.).0, Vec3::new(1., 2., 3.));
-    }
-
-    #[test]
-    fn splat() {
-        assert_ulps_eq!(LinVel::splat(2.).0, Vec3::new(2., 2., 2.));
-    }
-
-    #[test]
-    fn with() {
-        assert_ulps_eq!(LinVel::with_x(2.).0, Vec3::new(2., 0., 0.));
-        assert_ulps_eq!(LinVel::with_y(22.).0, Vec3::new(0., 22., 0.));
-        assert_ulps_eq!(LinVel::with_z(-5.).0, Vec3::new(0., 0., -5.));
-    }
-
-    #[test]
-    fn consts() {
-        assert_ulps_eq!(LinVel::ZERO.0, Vec3::new(0., 0., 0.));
-
-        assert_ulps_eq!(LinVel::X.0, Vec3::new(1., 0., 0.));
-        assert_ulps_eq!(LinVel::Y.0, Vec3::new(0., 1., 0.));
-        assert_ulps_eq!(LinVel::Z.0, Vec3::new(0., 0., 1.));
-
-        assert_ulps_eq!(LinVel::NEG_X.0, Vec3::new(-1., 0., 0.));
-        assert_ulps_eq!(LinVel::NEG_Y.0, Vec3::new(0., -1., 0.));
-        assert_ulps_eq!(LinVel::NEG_Z.0, Vec3::new(0., 0., -1.));
-    }
-}
 
 #[cfg(test)]
 mod arithmetic {

@@ -6,7 +6,7 @@ use crate::{
 };
 
 /// Represents a simulated "aerodynamic" panel.
-/// 
+///
 /// Used to heavily approximate the effects of aerodynamics on a simulated entity
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Panel {
@@ -26,7 +26,11 @@ const HALF_C_D: f64 = 1.28 / 2.;
 impl Panel {
     /// Creates a new panel with given offset, normal, and area.
     pub fn new(offset: Vec3, normal: Vec3, area: f64) -> Self {
-        Self { offset, normal, area }
+        Self {
+            offset,
+            normal,
+            area,
+        }
     }
 
     /// Calculates aerodynamic force based on relative velocity.
@@ -66,6 +70,8 @@ impl Panel {
 
 #[cfg(test)]
 mod test_utils {
+
+    use crate::linear_trait::LinVec as _;
 
     use super::*;
     use std::f64::consts::PI;
@@ -194,7 +200,9 @@ mod rotated {
 
 #[cfg(test)]
 mod rotation_based_velocity {
+
     use super::*;
+    use crate::linear_trait::LinVec as _;
     use approx::assert_ulps_eq;
     use test_utils::*;
 
@@ -264,6 +272,7 @@ mod rotation_based_velocity {
 #[cfg(test)]
 mod relative_velocity {
     use super::*;
+    use crate::linear_trait::LinVec as _;
     use crate::velocity::AngVel;
     use approx::assert_ulps_eq;
     use test_utils::*;
@@ -343,6 +352,7 @@ mod relative_velocity {
 mod to_force {
     use std::f64::consts::PI;
 
+    use crate::linear_trait::LinVec as _;
     use super::*;
     use approx::assert_ulps_eq;
     use test_utils::*;
