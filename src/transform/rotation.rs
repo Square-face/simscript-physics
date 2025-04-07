@@ -1,20 +1,23 @@
 #![allow(clippy::suspicious_op_assign_impl)]
 #![allow(clippy::suspicious_arithmetic_impl)]
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 #[cfg(feature = "approx")]
-use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-#[cfg(feature = "approx")]
-use approx_derive::Approx;
+use {
+    approx::{AbsDiffEq, RelativeEq, UlpsEq},
+    approx_derive::Approx,
+};
 
+use super::Transform;
 use glam::DQuat as Quat;
 use overload::overload;
 use std::{iter::Sum, ops};
 
-use super::Transform;
-
 /// Represents an object's orientation in 3D space, using a quaternion.
 /// This struct wraps a [Quat] and provides common rotation operations.
 #[cfg_attr(feature = "approx", derive(Approx))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Rotation(pub Quat);
 

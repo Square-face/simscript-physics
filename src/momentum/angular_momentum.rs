@@ -1,12 +1,15 @@
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 #[cfg(feature = "approx")]
-use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-#[cfg(feature = "approx")]
-use approx_derive::Approx;
+use {
+    approx::{AbsDiffEq, RelativeEq, UlpsEq},
+    approx_derive::Approx,
+};
 
 use glam::DVec3 as Vec3;
 use overload::overload;
-use std::ops;
 use std::iter::Sum;
+use std::ops;
 
 use crate::{inertia_mass::Inertia, velocity::AngVel};
 
@@ -14,6 +17,7 @@ use super::Momentum;
 
 /// Angular momentum struct with a 3D vector.
 #[cfg_attr(feature = "approx", derive(Approx))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct AngMom(pub Vec3);
 

@@ -1,21 +1,23 @@
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 #[cfg(feature = "approx")]
-use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-#[cfg(feature = "approx")]
-use approx_derive::Approx;
+use {
+    approx::{AbsDiffEq, RelativeEq, UlpsEq},
+    approx_derive::Approx,
+};
 
+use super::{LinVel, Velocity};
+use crate::transform::Rotation;
 use glam::{DQuat as Quat, DVec3 as Vec3};
 use overload::overload;
 use std::{iter::Sum, ops, time::Duration};
-
-use crate::transform::Rotation;
-
-use super::{LinVel, Velocity};
 
 /// Angular velocity in 3D space.
 ///
 /// This struct wraps a [Vec3] to provide a strongly typed representation of angular velocity,
 /// making operations and transformations explicit.
 #[cfg_attr(feature = "approx", derive(Approx))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct AngVel(pub Vec3);
 
@@ -47,35 +49,35 @@ impl AngVel {
         Self(Vec3::new(x, y, z))
     }
 
-    /// Creates a [AngVel] from an existing [Vec3].
+    /// Creates an [AngVel] from an existing [Vec3].
     #[inline]
     #[must_use]
     pub const fn from_vec3(v: Vec3) -> Self {
         Self(v)
     }
 
-    /// Creates a [AngVel] where all components are set to `v`.
+    /// Creates an [AngVel] where all components are set to `v`.
     #[inline]
     #[must_use]
     pub const fn splat(v: f64) -> Self {
         Self::new(v, v, v)
     }
 
-    /// Creates a [AngVel] with only the X component set.
+    /// Creates an [AngVel] with only the X component set.
     #[inline]
     #[must_use]
     pub const fn with_x(x: f64) -> Self {
         Self::new(x, 0., 0.)
     }
 
-    /// Creates a [AngVel] with only the Y component set.
+    /// Creates an [AngVel] with only the Y component set.
     #[inline]
     #[must_use]
     pub const fn with_y(y: f64) -> Self {
         Self::new(0., y, 0.)
     }
 
-    /// Creates a [AngVel] with only the Z component set.
+    /// Creates an [AngVel] with only the Z component set.
     #[inline]
     #[must_use]
     pub const fn with_z(z: f64) -> Self {

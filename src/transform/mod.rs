@@ -1,3 +1,11 @@
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+#[cfg(feature = "approx")]
+use {
+    approx::{AbsDiffEq, RelativeEq, UlpsEq},
+    approx_derive::Approx,
+};
+
 use glam::{DQuat as Quat, DVec3 as Vec3};
 use overload::overload;
 use std::{iter::Sum, ops};
@@ -12,6 +20,8 @@ pub use translation::Translation;
 ///
 /// This struct combines a position ([Translation]) and orientation ([Rotation]) in 3D space.
 /// It provides various constructors and operations for working with transformations.
+#[cfg_attr(feature = "approx", derive(Approx))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Transform {
     /// The translation component of the transformation

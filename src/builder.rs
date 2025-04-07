@@ -1,8 +1,8 @@
-use crate::State;
 use crate::inertia_mass::InertiaMass;
 use crate::momentum::Momentum;
 use crate::panels::Panel;
 use crate::transform::Transform;
+use crate::State;
 
 /// Builder for `State`
 #[derive(Debug, Default, Clone, PartialEq)]

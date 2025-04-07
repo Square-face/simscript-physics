@@ -11,6 +11,7 @@ glam = "0.29.2"
 overload = "0.1.1"
 approx = { version = "0.5.1", optional = true }
 approx_derive = { path = "./approx_derive", optional = true }
+serde = { version = "1.0.219", features = ["derive"], optional = true}
 
 [dev-dependencies]
 color-eyre = "0.6"
@@ -24,9 +25,9 @@ approx_derive = { path = "./approx_derive" }
 [profile.dev.package.backtrace]
 opt-level = 3
 
-
 [features]
 strict_asserts = ["glam/glam-assert"]
 approx = ["glam/approx", "dep:approx", "dep:approx_derive"]
+serde = ["glam/serde", "dep:serde"]
 
 default = ["approx"]

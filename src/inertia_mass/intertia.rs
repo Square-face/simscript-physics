@@ -1,9 +1,19 @@
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+#[cfg(feature = "approx")]
+use {
+    approx::{AbsDiffEq, RelativeEq, UlpsEq},
+    approx_derive::Approx,
+};
+
 use glam::{DMat3 as Mat3, DQuat as Quat};
 
 /// The mass distribution of an object.
 ///
 /// Represents how the mass of an object is distributed, used to calculate rotational velocity from
 /// momentum. Uses a [Mat3] internally.
+#[cfg_attr(feature = "approx", derive(Approx))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Inertia(pub Mat3);
 

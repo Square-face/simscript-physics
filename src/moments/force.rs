@@ -1,19 +1,22 @@
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 #[cfg(feature = "approx")]
-use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-#[cfg(feature = "approx")]
-use approx_derive::Approx;
+use {
+    approx::{AbsDiffEq, RelativeEq, UlpsEq},
+    approx_derive::Approx,
+};
 
+use crate::momentum::LinMom;
 use glam::DVec3 as Vec3;
 use overload::overload;
 use std::{iter::Sum, ops, time::Duration};
-
-use crate::momentum::LinMom;
 
 /// Force in 3D space.
 ///
 /// This struct wraps a [Vec3] to provide a strongly typed representation of force,
 /// making operations and transformations explicit.
 #[cfg_attr(feature = "approx", derive(Approx))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Force(pub Vec3);
 

@@ -1,18 +1,22 @@
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 #[cfg(feature = "approx")]
-use approx::{AbsDiffEq, RelativeEq, UlpsEq};
-#[cfg(feature = "approx")]
-use approx_derive::Approx;
+use {
+    approx::{AbsDiffEq, RelativeEq, UlpsEq},
+    approx_derive::Approx,
+};
+
+use super::Transform;
 use glam::DVec3 as Vec3;
 use overload::overload;
 use std::{iter::Sum, ops};
-
-use super::Transform;
 
 /// Represents a 3D translation vector.
 ///
 /// This struct encapsulates a displacement in 3D space using a [Vec3] (double-precision 3D vector).
 /// It provides constructors, utility methods, and operator overloads for manipulating translation vectors.
 #[cfg_attr(feature = "approx", derive(Approx))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 pub struct Translation(pub Vec3);
 
